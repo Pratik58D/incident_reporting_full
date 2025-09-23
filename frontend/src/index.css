@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+
 /* @custom-variant dark (&:is(.dark *)); */
 @theme{
 
@@ -17,6 +18,9 @@
     --color-success: #22c55e;
     --color-warning: #f59e0b;
     --color-error: #ef4444;
+
+    --color-form-label : #282829;
+    --color-form-placeholder : #808183 ; 
  
 
     --font-sans: "Roboto", system-ui, sans-serif;
@@ -35,8 +39,19 @@
     color: #111827;   
   }
   label{
-    color: #4B5563;
+    color: var(--color-form-label);
+    font-weight: 600;
 
+  }
+  .input-field {
+  border: 1px solid #cbd5e1;   
+  border-radius: 0.5rem;     
+  padding: 0.5rem;
+               
+}  
+
+  input::placeholder{
+    color: var(--color-form-placeholder)
   }
 }
 

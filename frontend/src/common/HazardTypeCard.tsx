@@ -5,10 +5,11 @@ interface HazardTypeCardProps {
     title: string;
     onClick?: () => void;
     selected?: boolean;
+    hazard ?: string ;
 
 }
 
-const HazardTypeCard: React.FC<HazardTypeCardProps> = ({ title, onClick, selected }) => {
+const HazardTypeCard: React.FC<HazardTypeCardProps> = ({ title, onClick, selected , hazard }) => {
     return (
         <div
             onClick={onClick}
@@ -20,6 +21,7 @@ const HazardTypeCard: React.FC<HazardTypeCardProps> = ({ title, onClick, selecte
                     <AlertCircle className="text-white" />
                 </div>
                 <h2 className="text-2xl font-semibold capitalize text-center">{title}</h2>
+                <h4 className="text-gray-700 capitalize">{hazard}</h4>
 
             </div>
 

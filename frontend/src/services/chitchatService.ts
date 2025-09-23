@@ -11,9 +11,12 @@ export const getChitChat = async(incidentId:number)=>{
 
 
 export const postChitchat = async(incidentId: number , text:string,file?: File | null)=>{
+
+    const userId = JSON.parse(localStorage.getItem("chatUser") || "null");
     const formData = new FormData();
     if(text) formData.append("text",text)
     if(file) formData.append("file",file)
+    if(userId) formData.append('userId' ,userId)
 
     const res = await axios.post(`${apiUrl}/chitchat/${incidentId}`,
         formData ,{
