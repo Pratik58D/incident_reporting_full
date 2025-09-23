@@ -5,12 +5,11 @@ export const createMessage = async (req: Request, res: Response) => {
     const client = await pool.connect();
     try {
         const { incidentId } = req.params;
-        const { text } = req.body;
+        const { text ,userId } = req.body;
 
         //if login throught jwt token else ananymous
         // future code 
-        const userId = parseInt('100');    /// for now individual with 100 is default user
-
+        const userIdNum = userId ? parseInt(userId ,10) : 100;    /// for now individual with 100 is default user
         
         if (!text && !req.file) {
             return res.status(400).json({ error: "Either text or file is required" });
@@ -82,11 +81,20 @@ export const getMessageByIncident = async (req: Request, res: Response) => {
         const { incidentId } = req.params;
 
         const result = await pool.query(
-            `SELECT c.id as chitchat_id ,cl.id AS log_id , cl.text ,f.id AS file_id , f.name AS file_name
+            `SELECT
+             c.id as chitchat_id ,
+             c.log_date,
+             cl.id AS log_id , 
+             cl.text ,
+            f.id AS file_id , 
+             f.name AS file_name,
+             u.id AS user_id,
+             u.name AS user_name     
             FROM chitchat c 
             LEFT JOIN chitchat_log cl ON cl.chitchat_id = c.id
             LEFT JOIN chitchat_media cm ON cm.message_id = cl.id
             LEFT JOIN file f ON f.id = cm.file_id
+            LEFT JOIN users u ON c.user_id = u.id
             WHERE  c.incident_id = $1 
             ORDER BY c.log_date ASC`,
             [incidentId]
