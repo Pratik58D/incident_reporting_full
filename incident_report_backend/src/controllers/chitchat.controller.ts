@@ -86,7 +86,7 @@ export const getMessageByIncident = async (req: Request, res: Response) => {
              c.log_date,
              cl.id AS log_id , 
              cl.text ,
-            f.id AS file_id , 
+             f.id AS file_id , 
              f.name AS file_name,
              u.id AS user_id,
              u.name AS user_name     

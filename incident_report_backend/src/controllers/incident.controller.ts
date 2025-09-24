@@ -10,14 +10,12 @@ export const createIncident = async (req: Request, res: Response) => {
         if (!hazardId || !title  || !lat || !lon) {
             return res.status(400).json({ message: "Missing required fields" });
         }
-
         const result = await pool.query(
             `INSERT INTO incident (hazard_id, title, description, reported_by, location_geom, created_at ,file_id)
              VALUES ($1, $2, $3, $4, ST_SetSRID(ST_Point($5, $6), 4326), NOW(),$7)
             RETURNING *`,
             [hazardId, title, description, reportedBy, lon, lat, file_id]
         );
-
         return res.status(201).json({ success: true, incident: result.rows[0] });
     } catch (error: any) {
         return res.status(500).json({ success: false, error: error.message });
@@ -39,12 +37,10 @@ export const getAllIncidents = async (_req: Request, res: Response) => {
 export const getIncidentById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const result = await pool.query("SELECT * FROM incident WHERE id = $1", [id]);
-
+        const result = await pool.query("SELECT * FROM incident WHERE id = $1", [id])
         if (result.rows.length === 0) {
             return res.status(404).json({ message: "Incident not found" });
         }
-
         return res.status(200).json({ success: true, incident: result.rows[0] });
     } catch (error: any) {
         return res.status(500).json({ success: false, error: error.message });
@@ -78,27 +74,21 @@ export const updateIncident = async (req: Request, res: Response) => {
         }
         if (fields.length === 0) {
             return res.status(400).json({ success: false, message: "No fields to update" });
-        }
-        
+        } 
         // adding id as lastp parameter
         values.push(id);
-
         const query = `UPDATE incident 
                        SET ${fields.join(", ")} WHERE id = $${idx}
                         RETURNING *`;
 
         const result = await pool.query(query , values);
-            
-    
         if (result.rows.length === 0) {
             return res.status(404).json({ message: "Incident not found" });
         }
         return res.status(200).json({ success: true, incident: result.rows[0] });
-
     } catch (error: any) {
         return res.status(500).json({ success: false, error: error.message });
     }
-
 }
 
 //delete incident 
@@ -115,20 +105,31 @@ export const deleteIncident = async (req: Request, res: Response) => {
         return res.status(200).json({ success: true, message: "Incident deleted successfully" });
     } catch (error: any) {
         return res.status(500).json({ success: false, error: error.message });
-
     }
 }
 
 
 // get incident join with hazard
 
-
 export const getHazardIncident = async(req:Request , res : Response)=>{
     try {
-        const result = await pool.query(`SELECT i.id AS incident_id ,i.title,i.reported_by, h.id AS hazard_id ,h.name AS hazard_name  FROM incident i JOIN hazard_categories h ON i.hazard_id =h.id ORDER BY i.created_at DESC `);       
+        const result = await pool.query(
+            `SELECT i.id AS incident_id ,
+            i.title,
+            i.description,
+            i.created_at,
+            u.name,
+            h.id AS hazard_id ,
+            h.name AS hazard_name ,
+            h.priority 
+            FROM incident i
+            LEFT JOIN users u ON 
+            i.reported_by = u. id 
+            LEFT JOIN hazard_categories h ON 
+            i.hazard_id =h.id 
+            ORDER BY i.created_at DESC `);       
         return res.status(200).json({ success: true, incidentHazard : result.rows });        
     } catch (error :any) {
         return res.status(500).json({ success: false, error: error.message });        
     }
-
 }

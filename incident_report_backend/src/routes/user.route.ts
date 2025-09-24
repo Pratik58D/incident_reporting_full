@@ -1,11 +1,12 @@
 import express from "express";
-import { createUser, getUsers } from "../controllers/user.controller.js";
+import { checkUserExists, createUser, getUsers } from "../controllers/user.controller.js";
 
 
 const userRouter = express.Router();
 
 userRouter.post("/",createUser);
 userRouter.get("/", getUsers);
+userRouter.get("/check" , checkUserExists)
 
 
 export default userRouter;
