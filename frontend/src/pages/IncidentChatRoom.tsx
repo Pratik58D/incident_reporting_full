@@ -11,11 +11,12 @@ import { toast } from "react-toastify";
 
 interface Message {
     incidentId: number,
-    userId: number,
+    user_id: number,
     text?: string;
     fileId?: number | null;
     file_name?: string;
-    chitchat_id ?: number;
+    chitchat_id?: number;
+    user_name: string
 }
 
 const IncidentChatRoom = () => {
@@ -26,15 +27,18 @@ const IncidentChatRoom = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [file, setFile] = useState<File | null>(null);
+
+
     const userName = JSON.parse(localStorage.getItem("displayName"));
-    
+    const userId = JSON.parse(localStorage.getItem("chatUser"));
+
     let intials = "";
     if (userName) {
         intials = userName.split(" ").map(word => word[0].toUpperCase()).join("");
 
     }
 
-    console.log("user:", userName, 'incident is: ', incidentId)
+    console.log("user:", userName, 'incident is: ', incidentId ,"and user id is:" , userId)
 
     //load existing message from backend
 
@@ -50,7 +54,7 @@ const IncidentChatRoom = () => {
 
     //join the socket room and listen for new messages 
     useEffect(() => {
-        socket.emit("join:incident", {incidentId: incidentIdNum });
+        socket.emit("join:incident", { incidentId: incidentIdNum });
         socket.on('message:new', (msg: Message) => {
             setMessages((prev) => [...prev, msg])
         });
@@ -70,10 +74,10 @@ const IncidentChatRoom = () => {
     const handleSend = async () => {
         if (!newMessage.trim() && !file) return;
         if (!incidentIdNum) return;
-       
+
         const res = await postChitchat(incidentIdNum, newMessage, file);
         console.log(res.data)
-    
+
         toast.success("message send")
         setNewMessage("");
         setFile(null)
@@ -114,34 +118,70 @@ const IncidentChatRoom = () => {
                     <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
                         <div className="flex justify-center text-white">
                             <div className=" bg-gray-800 px-3 py-1 flex rounded-lg">
-                            <p className="">{userName} joined the chat.</p>
+                                <p className="">{userName} joined the chat.</p>
 
                             </div>
                         </div>
-                        {/* Repeat to test scroll */}
-                        {messages.map((message) => (
-                            <div className="flex justify-end gap-2" key={message.chitchat_id}>
 
-                                <div className="flex flex-col gap-1 ">
-                                  { message.user_name ?   <h4 className="text-gray-600 text-right ">{message.user_name}</h4> : "ananomus"
+                        {messages.map((message) => {
+                            const isOwnMessage = Number(message.user_id) === Number(userId);
+                            console.log('isOwnMessage is : ' , isOwnMessage);
 
-                                  }
-                              
-                                 <div className="flex items-center ">
-                                    <ChatFunction />
-                                     <p className="bg-primaryCol text-white px-4 py-2 rounded-md w-fit">
-                                        {message.text}
-                                    </p>
-                                 </div>
-                                   
+                            return (
+                                <div key={message.chitchat_id}
+                                    className={`flex gap-2 ${isOwnMessage ? "justify-end" : "justify-start"}`}
+                                >
+                                    {/* avatar for others */}
+
+                                    {!isOwnMessage && (
+                                        <Avatar className="border border-gray-300 shadow-md bg-gray-700 text-white cursor-pointer">
+                                            <AvatarImage src="" />
+                                            <AvatarFallback>
+                                                {
+                                                    message.user_name ? message.user_name[0].toUpperCase()
+                                                        : "A"
+                                                }
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    )}
+
+                                    {/* message content */}
+                                    <div className="flex flex-col gap-1">
+                                        <h4 className={`text-sm ${isOwnMessage ? "text-right text-gray-600" : "text-left text-gray-800"
+                                            }`}
+                                        >
+                                            {message.user_name || "Anonymous"}
+
+                                        </h4>
+                                        <div className="flex items-center">
+                                            <ChatFunction />
+                                            <p
+                                                className={`px-4 py-2 rounded-md w-fit ${isOwnMessage ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                                            >
+                                                {message.text}
+
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    {/* avatar for own messages */}
+
+                                    {isOwnMessage && (
+                                        <Avatar className="border border-gray-300 shadow-md bg-gray-700 text-white cursor-pointer">
+                                            <AvatarImage src="" />
+                                            <AvatarFallback >{intials}</AvatarFallback>
+
+                                        </Avatar>
+                                    )}
+
                                 </div>
-                                <Avatar className="border border-gray-300 shadow-md bg-gray-700 text-white cursor-pointer">
-                                    <AvatarImage src="" />
-                                    <AvatarFallback>{intials}</AvatarFallback>
-                                </Avatar>
-                            </div>
+                            )
 
-                        ))}
+
+
+                        })}
                     </div>
 
                     {/* messages chat field this has to be fixed at button */}
@@ -180,8 +220,8 @@ const IncidentChatRoom = () => {
 
                         <button
                             className="bg-primaryCol text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-800"
-                          onClick={handleSend}    
-                         >
+                            onClick={handleSend}
+                        >
                             <Send className="w-4 h-4" />
                         </button>
                     </footer>

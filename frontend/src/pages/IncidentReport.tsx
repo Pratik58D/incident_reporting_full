@@ -53,7 +53,7 @@ const IncidentHandling: React.FC = () => {
   const methods = useForm<IncidentFormData>({
     defaultValues,
   })
-  
+
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = methods;
 
 
@@ -80,7 +80,7 @@ const IncidentHandling: React.FC = () => {
       .catch((err) => console.error("Error fetching hazard types", err));
   }, []);
 
-  console.log(hazardTypes)
+  console.log("hazard types:", hazardTypes)
 
   // Get device location automatically
   const getLocation = () => {
@@ -103,10 +103,10 @@ const IncidentHandling: React.FC = () => {
     try {
 
       // 1. first create user Information
-      const userResponse = await axios.post(`${apiUrl}/users` ,{
-        name : data.name,
-        phone_number : data.phone_number,
-        email : data.email || null
+      const userResponse = await axios.post(`${apiUrl}/users`, {
+        name: data.name,
+        phone_number: data.phone_number,
+        email: data.email || null
       })
 
       const userId = userResponse.data.user?.id || userResponse.data.id;
@@ -162,7 +162,7 @@ const IncidentHandling: React.FC = () => {
       setPreviewUrl(null)
     } catch (error) {
       console.error(error);
-       if (axios.isAxiosError(error)) {
+      if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || error.message;
         toast.error(`Error: ${errorMessage}`);
       } else {
@@ -199,7 +199,7 @@ const IncidentHandling: React.FC = () => {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className=" max-w-sm sm:max-w-xl md:max-w-3xl mx-auto mt-32 flex flex-col gap-8 bg-transparent ">
           <section>
-            <Personal_Information 
+            <Personal_Information
             />
           </section>
 
@@ -213,7 +213,7 @@ const IncidentHandling: React.FC = () => {
                 <label>Hazard Type *</label>
                 <select
                   {...register("hazardTypeId", { required: "Hazard type is required" })}
-                  className="bg-gray-100 p-2 border border-slate-300 rounded-md"
+                  className="bg-gray-100 p-2 border border-slate-300 rounded-md text-sm"
                 >
                   <option value="" className="text-form-label">
                     Select Hazard Type
@@ -242,16 +242,14 @@ const IncidentHandling: React.FC = () => {
                 <label>Priority *</label>
                 <select
                   {...register("priority", { required: "Hazard type is required" })}
-                  className="bg-gray-200 p-2 border border-slate-300 rounded-md"
+                  className="bg-gray-200 p-2 border border-slate-300 rounded-md text-sm text-form-label"
                 >
-                  <option value="" className="text-slate-500">
-                    select priority
+                  <option value="">
+                    Select priority
                   </option>
-                  {hazardTypes.map((h) => (
-                    <option key={h.id} value={h.id} className="text-slate-500">
-                      {h.priority}
-                    </option>
-                  ))}
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
                 </select>
                 {errors.priority && <p className="text-red-500">{errors.priority.message}</p>}
               </div>
@@ -275,7 +273,7 @@ const IncidentHandling: React.FC = () => {
                 <textarea
                   {...register("description", { required: "Description is required" })}
                   rows={4}
-                  className="border border-slate-300 rounded-md p-2"
+                  className="border border-slate-300 rounded-md p-2 placeholder:text-sm"
                   placeholder="Summarize what happened, when it took place, and any important context.."
                 />
                 {/* {errors.description && <p className="text-red-500">{errors.description.message}</p>} */}

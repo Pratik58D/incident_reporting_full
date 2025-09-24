@@ -51,7 +51,8 @@
 }  
 
   input::placeholder{
-    color: var(--color-form-placeholder)
+    color: var(--color-form-placeholder);
+    font-size : 14px;
   }
 }
 

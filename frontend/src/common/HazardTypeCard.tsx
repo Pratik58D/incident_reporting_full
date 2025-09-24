@@ -1,32 +1,70 @@
-import { AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import getStatusColor from "@/lib/statusColor";
+import { Clock } from "lucide-react";
 import type React from "react";
 
 interface HazardTypeCardProps {
     title: string;
     onClick?: () => void;
     selected?: boolean;
-    hazard ?: string ;
-
+    hazard?: string;
+    fullName: string;
+    IncidentDescription: string;
+    createdAt: Date;
+    status: "low" | "medium" | "high";
 }
 
-const HazardTypeCard: React.FC<HazardTypeCardProps> = ({ title, onClick, selected , hazard }) => {
+const HazardTypeCard: React.FC<HazardTypeCardProps> = ({
+    title,
+    onClick,
+    selected,
+    hazard,
+    fullName,
+    IncidentDescription,
+    createdAt,
+    status
+}) => {
     return (
-        <div
+        <Card
             onClick={onClick}
-            className={` p-4 rounded-lg bg-white cursor-pointer transition-all duration-200 border border-gray-200
-                      ${selected ? "scale-105 shadow-2xl border-2 " : "shadow-md hover:shadow-2xl"}`}
-            >
-            <div className="flex flex-col items-center justify-center gap-4 py-8">
-                <div className="bg-error w-[40px] h-[40px] flex items-center justify-center rounded-full ">
-                    <AlertCircle className="text-white" />
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg border border-gray-200
+                      ${selected ? "scale-105 shadow-2xl border border-gray-400 " : "hover:shadow-2xl"}`}
+        >
+            <CardHeader className="flex flex-col gap-4">
+                <div className="w-full">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                            <span
+                                className={`w-4 h-4 rounded-full ${getStatusColor(status)}`}
+                            ></span>
+                          <h2 className="text-xl font-semibold capitalize">{title}</h2>
+
+                           
+                        </div>
+                         <p className={`capitalize text-sm font-medium text-white  px-4 py-0.5 rounded-md ${getStatusColor(status)} `}>{status}</p>
+                    </div>
+                     <p className="text-sm text-gray-600 leading-relaxed">
+                        {IncidentDescription}
+                    </p>
                 </div>
-                <h2 className="text-2xl font-semibold capitalize text-center">{title}</h2>
-                <h4 className="text-gray-700 capitalize">{hazard}</h4>
+            </CardHeader>
 
-            </div>
+            <CardContent className="pt-0">
+                <div className="space-y-4">
+                   
 
-        </div>
-    )
-}
+                    <div className="text-sm text-gray-500 space-y-1 flex justify-between items-center">
+                        <div className="inline-flex items-center gap-1">
+                            <Clock size={17} />
+                            <p >{new Date(createdAt).toLocaleDateString()}</p>
+                        </div>
+                        {hazard && <p className="capitalize">{hazard}</p>}
+                        <p>Reported by <span className="font-medium">{fullName}</span></p>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
 
-export default HazardTypeCard
+export default HazardTypeCard;

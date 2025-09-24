@@ -1,5 +1,3 @@
-// this is the entry point of caht app
-
 import HazardTypeCard from "@/common/HazardTypeCard"
 import { apiUrl } from "@/env";
 import axios from "axios";
@@ -17,6 +15,10 @@ interface Incident {
     reported_by?: number;
     hazard_id?: string;
     hazard_name: string;
+    name: string;
+    description: string;
+    created_at: Date;
+    priority: "low" | "medium" | "high";
 }
 
 interface PersonalData {
@@ -47,8 +49,7 @@ const ChatRoom: React.FC = () => {
     useEffect(() => {
         const getIncident = async () => {
             try {
-                const res = await axios.get(`${apiUrl}/incidents/incident-hazard`)
-                console.log(res.data.incidentHazard);
+                const res = await axios.get(`${apiUrl}/incidents/incident-hazard`);
                 setIncidentData(res.data.incidentHazard);
             } catch (error) {
                 console.error(error);
@@ -60,15 +61,31 @@ const ChatRoom: React.FC = () => {
     // join the chat based on incident ID
     const handleJoinEmergency: SubmitHandler<PersonalData> = async (data) => {
         try {
-         const res =   await axios.post(`${apiUrl}/users`, {
+
+            // check if the user exists (by email, phone_number)
+            const checkRes = await axios.get(`${apiUrl}/users/check`,{
+                params :{
+                    email  : data.email || undefined,
+                    phone_number : data.phone_number
+                }
+            })
+            let user;
+            if(checkRes.data.exists){
+                // if user already exists , use it
+                user = checkRes.data.user;
+            }else{
+                //create a new user
+                const res = await axios.post(`${apiUrl}/users`, {
                 name: data.name,
                 phone_number: data.phone_number,
                 email: data.email || null
-            })
+            });
+              user = res.data.user
+            }
 
             // save user data (id comes from backend)
-            localStorage.setItem("chatUser", JSON.stringify(res.data.user.id));
-            localStorage.setItem("displayName", JSON.stringify(res.data.user.name));
+            localStorage.setItem("chatUser", JSON.stringify(user.id));
+            localStorage.setItem("displayName", JSON.stringify(user.name));
 
             reset(defaultValues);
             toast.success("user register sucessfully")
@@ -84,7 +101,7 @@ const ChatRoom: React.FC = () => {
         }
     }
 
-    console.log("incident+ hazard :", incidentData);
+    console.log("incident+ hazard + user chitchatroom :", incidentData);
 
     return (
         <>
@@ -116,12 +133,12 @@ const ChatRoom: React.FC = () => {
                             <Personal_Information />
 
                             {/* section hazard type */}
-                            <section className="mt-7 px-5 py-5 ">
+                            <section className="mt-7 py-5 ">
                                 <div className="flex items-center gap-2 mb-5">
                                     <CircleAlert size={30} className="text-error" />
                                     <h1 className="font-bold text-lg">Hazard Type</h1>
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-2 gap-8">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     {incidentData.map((incident) => (
                                         <HazardTypeCard
                                             key={incident.incident_id}
@@ -129,6 +146,10 @@ const ChatRoom: React.FC = () => {
                                             onClick={() => setIncidentId(incident.incident_id)}
                                             selected={incidentId === incident.incident_id}
                                             hazard={incident.hazard_name}
+                                            fullName={incident.name}
+                                            IncidentDescription={incident.description}
+                                            createdAt={incident.created_at}
+                                            status={incident.priority}
                                         />
                                     ))}
                                 </div>
