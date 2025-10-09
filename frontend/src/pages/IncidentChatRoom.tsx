@@ -3,6 +3,7 @@ import ChatFunction from "@/common/ChatFunction";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getChitChat, postChitchat } from "@/services/chitchatService";
 import socket from "@/services/socket";
+import userStore from "@/store/userStore";
 import { ArrowLeft, Mic, Paperclip, Send, Users } from "lucide-react"
 import { useEffect, useState, type ChangeEvent } from "react";
 import { Link, useParams } from "react-router-dom"
@@ -29,13 +30,14 @@ const IncidentChatRoom = () => {
     const [file, setFile] = useState<File | null>(null);
 
 
-    const userName = JSON.parse(localStorage.getItem("displayName"));
-    const userId = JSON.parse(localStorage.getItem("chatUser"));
+    // const userName = JSON.parse(localStorage.getItem("displayName"));
+    // const userId = JSON.parse(localStorage.getItem("chatUser"));
+    const userName = userStore.user.name;
+    const userId = userStore.user.id;
 
     let intials = "";
     if (userName) {
         intials = userName.split(" ").map(word => word[0].toUpperCase()).join("");
-
     }
 
     console.log("user:", userName, 'incident is: ', incidentId ,"and user id is:" , userId)
@@ -154,6 +156,7 @@ const IncidentChatRoom = () => {
 
                                         </h4>
                                         <div className="flex items-center">
+                                            {/* dropdown in chat setting */}
                                             <ChatFunction />
                                             <p
                                                 className={`px-4 py-2 rounded-md w-fit ${isOwnMessage ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}

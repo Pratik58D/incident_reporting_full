@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import {observer} from "mobx-react-lite";
 import { FormProvider, useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import axios from "axios";
@@ -7,6 +8,8 @@ import { AlertTriangle, ArrowLeft, Camera, MapPin, Upload } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { apiUrl } from "@/env";
 import Personal_Information from "@/common/Personal_Information";
+import { incidentReportStore } from "@/store/incidentReportStore";
+
 
 interface IncidentFormData {
   // Personal Information fields
@@ -32,7 +35,6 @@ const defaultValues: IncidentFormData = {
   name: "",
   phone_number: "",
   email: "",
-
   hazardTypeId: "",
   newHazardType: "",
   priority: "",
@@ -45,11 +47,8 @@ const defaultValues: IncidentFormData = {
   estimatedClearance: "",
 };
 
-const IncidentHandling: React.FC = () => {
-  const [hazardTypes, setHazardTypes] = useState<{ id: string; name: string, priority: string }[]>([]);
-  const [uploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+const IncidentHandling: React.FC = observer(() => {
+  
   const methods = useForm<IncidentFormData>({
     defaultValues,
   })
@@ -64,23 +63,17 @@ const IncidentHandling: React.FC = () => {
 
   // file preview 
   useEffect(() => {
-    if (watchFile && watchFile?.length > 0) {
-      const fileObj = watchFile[0];
-      setPreviewUrl(URL.createObjectURL(fileObj));
-    } else {
-      setPreviewUrl(null)
-    }
+    incidentReportStore.setPreview(watchFile)
+   
   }, [watchFile])
 
-
+  //fetch hazards once
   useEffect(() => {
-    axios
-      .get(`${apiUrl}/hazards`)
-      .then((res) => setHazardTypes(res.data.data))
-      .catch((err) => console.error("Error fetching hazard types", err));
+    incidentReportStore.fetchHazards();
   }, []);
 
-  console.log("hazard types:", hazardTypes)
+  console.log(incidentReportStore.fetchHazards());
+
 
   // Get device location automatically
   const getLocation = () => {
@@ -101,22 +94,17 @@ const IncidentHandling: React.FC = () => {
 
   const onSubmit: SubmitHandler<IncidentFormData> = async (data) => {
     try {
-
       // 1. first create user Information
       const userResponse = await axios.post(`${apiUrl}/users`, {
         name: data.name,
         phone_number: data.phone_number,
         email: data.email || null
       })
-
       const userId = userResponse.data.user?.id || userResponse.data.id;
 
-
-
-      let hazardId = data.hazardTypeId;
-
+      let hazardId = data.hazardTypeId;;
       // If user entered new hazard type
-      if (data.hazardTypeId === "other" && data.newHazardType) {
+      if (hazardId === "other" && data.newHazardType) {
         const res = await axios.post(`${apiUrl}/hazards`, { name: data.newHazardType });
         hazardId = res.data.data.id;
       }
@@ -128,7 +116,7 @@ const IncidentHandling: React.FC = () => {
         lat: parseFloat(data.latitude),
         lon: parseFloat(data.longitude),
         hazardId,
-        reportedBy: userId, // replace with actual user id
+        reportedBy: userId,
         file_id: null,
       });
 
@@ -137,14 +125,14 @@ const IncidentHandling: React.FC = () => {
 
       // 3. Upload file if exists
       if (data.file && data.file.length > 0) {
+        incidentReportStore.setUploading(true);
         const formData = new FormData();
         formData.append("file", data.file[0]);
         formData.append("incidentId", incidentId);
-
         const fileRes = await axios.post(`${apiUrl}/files/upload`, formData);
         fileId = fileRes.data.data.id;
-
         await axios.put(`${apiUrl}/incidents/${incidentId}`, { file_id: fileId });
+        incidentReportStore.setUploading(false);
       }
 
       // 4. Create road blockage if selected
@@ -159,7 +147,8 @@ const IncidentHandling: React.FC = () => {
 
       toast.success("Incident reported successfully!");
       reset(defaultValues);
-      setPreviewUrl(null)
+      incidentReportStore.reset();
+
     } catch (error) {
       console.error(error);
       if (axios.isAxiosError(error)) {
@@ -173,7 +162,6 @@ const IncidentHandling: React.FC = () => {
 
   return (
     <FormProvider {...methods}>
-
       <nav className="fixed top-0 right-0 left-0 z-50 bg-backgrounds/95 backdrop-blur-sm border-b border-b-gray-300 shadow-md p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* desktop menu */}
@@ -218,7 +206,7 @@ const IncidentHandling: React.FC = () => {
                   <option value="" className="text-form-label">
                     Select Hazard Type
                   </option>
-                  {hazardTypes.map((h) => (
+                  {incidentReportStore.hazardTypes.map((h) => (
                     <option key={h.id} value={h.id} className="text-form-label">
                       {h.name}
                     </option>
@@ -348,18 +336,18 @@ const IncidentHandling: React.FC = () => {
                   </div>
                 </label>
 
-                {previewUrl && (
+                {incidentReportStore.previewUrl && (
                   <div className="mt-3">
                     <p className="font-semibold">Preview:</p>
                     <img
-                      src={previewUrl}
+                      src={incidentReportStore.previewUrl}
                       alt="file preview"
                       className="mt-2 max-h-48 object-contain border"
                     />
                   </div>
                 )}
 
-                {uploading && (
+                {incidentReportStore.uploading && (
                   <p className="mt-2 text-blue-600 font-medium">Uploading file...</p>
                 )}
               </div>
@@ -411,6 +399,6 @@ const IncidentHandling: React.FC = () => {
     </FormProvider>
 
   );
-};
+});
 
 export default IncidentHandling;

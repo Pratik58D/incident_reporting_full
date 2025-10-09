@@ -7,6 +7,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Personal_Information from "@/common/Personal_Information"
 import { FormProvider, useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
+import userStore from "@/store/userStore";
 
 //type of Incident
 interface Incident {
@@ -83,9 +84,16 @@ const ChatRoom: React.FC = () => {
               user = res.data.user
             }
 
-            // save user data (id comes from backend)
-            localStorage.setItem("chatUser", JSON.stringify(user.id));
-            localStorage.setItem("displayName", JSON.stringify(user.name));
+            // // save user data (id comes from backend)
+            // localStorage.setItem("chatUser", JSON.stringify(user.id));
+            // localStorage.setItem("displayName", JSON.stringify(user.name));
+
+            userStore.setUser({
+                id : user.id,
+                name : user.name,
+                phone_number : user.phone_number,
+                email : user.email
+            })
 
             reset(defaultValues);
             toast.success("user register sucessfully")
