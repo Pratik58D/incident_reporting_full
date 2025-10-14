@@ -144,7 +144,7 @@ const ChatRoom: React.FC = () => {
                             <section className="mt-7 py-5 ">
                                 <div className="flex items-center gap-2 mb-5">
                                     <CircleAlert size={30} className="text-error" />
-                                    <h1 className="font-bold text-lg">Hazard Type</h1>
+                                    <h1 className="font-bold text-lg">Current Incidents</h1>
                                 </div>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     {incidentData.map((incident) => (

@@ -1,7 +1,10 @@
 import { AlertTriangle } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 import { NavLink } from "react-router-dom"
 
 const Footer = () => {
+  const {t} = useTranslation();
   return (
     <footer className="flex flex-col bg-gray-100 border-t border-gray-200 shadow-inner py-5 px-5">
 
@@ -13,22 +16,22 @@ const Footer = () => {
            <AlertTriangle />
          </div>
         <div>
-          <h1 className="font-semibold text-xl text-black">Mero Alert</h1>
-          <h3 className="text-sm text-gray-500">Emergency resposes</h3>
+          <h1 className="font-semibold text-xl text-black">{t("nav_title")}</h1>
+          <h3 className="text-sm text-gray-500">{t("nav_text")}</h3>
         </div>
           </NavLink>
-          <p className="text-base text-gray-500">Dedicated to providing fast, reliable emergency response services. Your safety is our priority, 24 hours a day, 7 days a week.</p>
+          <p className="text-base text-gray-500">{t("footer_text")}</p>
       </div>
       {/* link section */}
       <section className="flex flex-1 justify-between">
         <div className="flex flex-col gap-2">
-          <h3>Quick Action</h3>
-           <a href="#" className="text-gray-500 hover:text-primaryCol transition">Report Incident</a>
-          <a href="#" className="text-gray-500 hover:text-primaryCol transition">Emergency Chat</a>
+          <h3>{t('footer_menu_quick_action')}</h3>
+           <Link to="/report" className="text-gray-500 hover:text-primaryCol transition">Report Incident</Link>
+          <Link to="/chat" className="text-gray-500 hover:text-primaryCol transition">Emergency Chat</Link>
           <a href="#" className="text-gray-500 hover:text-primaryCol transition">Service Status</a>
         </div>
         <div className="flex flex-col gap-2">
-          <h3>Legal</h3>
+          <h3>{t("footer_menu_legal")}</h3>
           <a href="#" className="text-gray-500 hover:text-primaryCol transition">Privacy Policy</a>
           <a href="#" className="text-gray-500 hover:text-primaryCol transition">Terms of Service</a>
           <a href="#" className="text-gray-500 hover:text-primaryCol transition">Contact</a>

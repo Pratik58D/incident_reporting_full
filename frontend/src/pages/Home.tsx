@@ -2,8 +2,11 @@ import { ArrowRight, CircleAlert, MessageCircleMore } from "lucide-react"
 import Footer from "../components/Footer"
 import NavBar from "../components/NavBar"
 import { NavLink } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 const Home = () => {
+  const {t} = useTranslation();
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 ">
       <NavBar />
@@ -11,11 +14,10 @@ const Home = () => {
         {/* hero section */}
         <section className="px-6 pt-24 text-center md:text-left">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primaryCol md:text-center">
-            Welcome to Mero Alert
+            {t("hero_title")}
           </h1>
           <p className="text-gray-600 text-lg text-center md:text-xl mb-6">
-            Quickly report incidents and connect with responders in real-time.
-            Your safety matters to us.
+            {t("hero_content")}
           </p>
 
         </section>
@@ -27,13 +29,13 @@ const Home = () => {
             <NavLink to="/report" className="flex flex-col justify-between h-full">
               <div className="flex flex-col items-center gap-2">
                 <CircleAlert size={60} className="text-error" />
-                <h2 className="text-xl font-bold">Report an incident</h2>
+                <h2 className="text-xl font-bold">{t("incident_card_title")}</h2>
                 <p className="text-gray-600 text-center">
-                  Share details about hazards and keep community safe.
+                  {t("incident_card_desc")}
                 </p>
               </div>
               <button className="button-red w-full flex gap-3 justify-center items-center mt-4">
-                <p className="font-semibold">Report Incident</p>
+                <p className="font-semibold"> {t("report")}</p>
                 <ArrowRight />
               </button>
             </NavLink>
@@ -44,13 +46,13 @@ const Home = () => {
             <NavLink to="/chat" className="flex flex-col justify-between h-full">
               <div className="flex flex-col items-center gap-2">
                 <MessageCircleMore size={60} className="text-primaryCol" />
-                <h2 className="text-xl font-bold">Join the Chat Room</h2>
+                <h2 className="text-xl font-bold">{t("chat_card_title")}</h2>
                 <p className="text-gray-600 text-center">
-                  Talk with responders instantly and stay updated together.
+                  {t("chat_card_desc")}
                 </p>
               </div>
               <button className="button-primary w-full flex gap-3 justify-center items-center mt-4">
-                <p className="font-semibold">Enter Chat</p>
+                <p className="font-semibold">{t("chat")}</p>
                 <ArrowRight />
               </button>
             </NavLink>

@@ -1,0 +1,33 @@
+{
+  "nav_title": "Mero Alert",
+  "nav_text": "Emergency responses",
+  "hero_title": "Welcome to Mero Alert",
+  "hero_content": "Quickly report incidents and connect with responders in real-time. Your safety matters to us.",
+  "incident_card_title": "Report an incident",
+  "incident_card_desc": "Share details about hazards and keep community safe.",
+  "chat_card_title": "Join the Chat Room",
+  "chat_card_desc": "Talk with responders instantly and stay updated together.",
+  "footer_text": "Dedicated to providing fast, reliable emergency response services. Your safety is our priority, 24 hours a day, 7 days a week.",
+  "footer_menu_quick_action": "Quick Action",
+  "footer_menu_legal": "Legal",
+  "report" : "Report Incident",
+  "chat" : "Enter chat",
+
+  "your_information" :"Your Information",
+  "full_name" : "Full Name",
+  "phone_number" : "Phone Number",
+  "email_address" : "Email Address(Optional)",
+
+  "report_new_incident" :"Report New Incident",
+  "hazard_type" :"Hazard Type",
+  "priority" :"Priority",
+  "incident_title" : "Incident Title",
+  "incident_desc" : "Incident Description",
+   "auto_location" : "Click to get GPS coordinates automatically",
+  "use_location":"Use My Location",
+  "latitude" :"Latitude",
+  "longitude" : "Latitude",
+  "media":"Camera/media(Optional)",
+  "road_name" : "Road Name",
+  "clearance_time" :"Estimated Clearance Time"
+}

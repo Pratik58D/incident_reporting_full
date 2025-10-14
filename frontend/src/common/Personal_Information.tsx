@@ -1,6 +1,7 @@
 import { Users } from 'lucide-react'
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 
 interface personalInformationData {
@@ -12,16 +13,18 @@ interface personalInformationData {
 const Personal_Information: React.FC = () => {
 
     const { register, formState: { errors } } = useFormContext<personalInformationData>();
+    
+    const {t} = useTranslation();
 
     return (
         <section className="bg-white rounded-2xl flex flex-col justify-center p-8 gap-4 shadow-lg border border-gray-200 hover:shadow-2xl">
             <div className="flex gap-2 items-center justify-center">
                 <Users />
-                <h2 className="text-lg font-bold">Your Information</h2>
+                <h2 className="text-lg font-bold">{t("your_information")}</h2>
             </div>
             <form className="grid grid-cols-1 sm:grid-cols-2 sm:items-center gap-2 sm:flex-row sm:gap-4">
                 <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
-                    <label>Full Name *</label>
+                    <label>{t("full_name")} *</label>
                     <input
                         type="text"
                         placeholder="Enter Your Full Name"
@@ -41,7 +44,7 @@ const Personal_Information: React.FC = () => {
                     }
                 </div>
                 <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
-                    <label>Phone Number *</label>
+                    <label>{t("phone_number")} *</label>
                     <input
                         type="text"
                         placeholder="Enter Your Phone Number"
@@ -59,7 +62,7 @@ const Personal_Information: React.FC = () => {
                     )}
                 </div>
                 <div className="col-span-2 flex flex-col gap-2">
-                    <label>Email Address (optional)</label>
+                    <label>{t("email_address")}</label>
                     <input
                         type="email"
                         placeholder="your.email@gmail.com"

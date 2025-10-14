@@ -9,6 +9,8 @@ import { NavLink } from "react-router-dom";
 import { apiUrl } from "@/env";
 import Personal_Information from "@/common/Personal_Information";
 import { incidentReportStore } from "@/store/incidentReportStore";
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "@/common/LanguageSelector";
 
 
 interface IncidentFormData {
@@ -55,11 +57,11 @@ const IncidentHandling: React.FC = observer(() => {
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = methods;
 
-
   const watchHazardTypeId = watch("hazardTypeId");
   const watchIsRoadBlockage = watch("isRoadBlockage");
   const watchFile = watch("file");
 
+  const {t} = useTranslation();
 
   // file preview 
   useEffect(() => {
@@ -177,9 +179,10 @@ const IncidentHandling: React.FC = observer(() => {
               <AlertTriangle />
             </div>
             <div>
-              <h1 className="hidden sm:flex font-semibold text-xl text-black">Report incident</h1>
+              <h1 className="hidden sm:flex font-semibold text-xl text-black">{t("incident_card_title")}</h1>
             </div>
           </div>
+          <LanguageSelector />
 
         </div>
       </nav>
@@ -187,18 +190,17 @@ const IncidentHandling: React.FC = observer(() => {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className=" max-w-sm sm:max-w-xl md:max-w-3xl mx-auto mt-32 flex flex-col gap-8 bg-transparent ">
           <section>
-            <Personal_Information
-            />
+            <Personal_Information/>
           </section>
 
           {/* incident form */}
 
           <section className=" bg-white shadow-lg  hover:shadow-2xl rounded-2xl border border-gray-200 mb-10">
-            <h1 className="font-bold text-lg py-4 text-center">Report New Incident</h1>
+            <h1 className="font-bold text-lg py-4 text-center">{t("report_new_incident")}</h1>
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 justify-between sm:grid-cols-2 gap-y-4 px-8 py-4 gap-x-8  ">
               {/* Hazard Type */}
               <div className=" flex flex-col gap-2 col-span-2 sm:col-span-1">
-                <label>Hazard Type *</label>
+                <label>{t("hazard_type")} *</label>
                 <select
                   {...register("hazardTypeId", { required: "Hazard type is required" })}
                   className="bg-gray-100 p-2 border border-slate-300 rounded-md text-sm"
@@ -227,7 +229,7 @@ const IncidentHandling: React.FC = observer(() => {
 
               {/*Hazard priority  */}
               <div className=" flex flex-col gap-2 col-span-2 sm:col-span-1">
-                <label>Priority *</label>
+                <label>{t("priority")} *</label>
                 <select
                   {...register("priority", { required: "Hazard type is required" })}
                   className="bg-gray-200 p-2 border border-slate-300 rounded-md text-sm text-form-label"
@@ -245,7 +247,7 @@ const IncidentHandling: React.FC = observer(() => {
               {/* Incident title */}
               <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
 
-                <label>Incident Title *</label>
+                <label>{t("incident_title")} *</label>
                 <input
                   {...register("title", { required: "Title is required" })}
                   placeholder="Brief description of incident"
@@ -257,7 +259,7 @@ const IncidentHandling: React.FC = observer(() => {
               {/* Incident description */}
               <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
 
-                <label>Incident Description *</label>
+                <label>{t("incident_desc")} *</label>
                 <textarea
                   {...register("description", { required: "Description is required" })}
                   rows={4}
@@ -271,7 +273,7 @@ const IncidentHandling: React.FC = observer(() => {
               <div className="col-span-2 flex flex-col gap-2">
                 <div className="flex  items-center gap-2 ">
                   <label className=" hidden sm:block text-form-placeholder sm:w-1/2 ">
-                    Click to get GPS coordinates automatically *
+                    {t("auto_location")} *
                   </label>
                   <div className=" sm:w-1/2 w-full sm:pl-2">
                     <button
@@ -280,7 +282,7 @@ const IncidentHandling: React.FC = observer(() => {
                       onClick={getLocation}
                     >
                       <MapPin />
-                      Use My Location
+                      {t("use_location")}
 
                     </button>
 
@@ -291,7 +293,7 @@ const IncidentHandling: React.FC = observer(() => {
                 <div className="flex flex-col md:flex-row justify-between space-x-8 space-y-4">
                   {/* latitude */}
                   <div className="flex flex-col gap-2 md:w-1/2">
-                    <label>Latitude</label>
+                    <label>{t("latitude")}</label>
                     <input
                       {...register("latitude", { required: "Latitude is required" })}
                       placeholder="Latitude"
@@ -302,7 +304,7 @@ const IncidentHandling: React.FC = observer(() => {
 
                   {/* longitude */}
                   <div className="flex flex-col gap-2 md:w-1/2">
-                    <label>Longitude</label>
+                    <label>{t("longitude")}</label>
                     <input
                       {...register("longitude", { required: "Longitude is required" })}
                       placeholder="Longitude"
@@ -319,7 +321,7 @@ const IncidentHandling: React.FC = observer(() => {
                 <input id="file" type="file" {...register("file")} className="sr-only" />
                 <label className="flex items-center gap-2 mb-2 text-form-label" >
                   <Camera size={20} />
-                  <p className="text-form-label">Camera/media(optional)</p>
+                  <p className="text-form-label">{t("media")}</p>
                 </label>
                 <label htmlFor="file"
                   className="border-2 border-dashed border-form-placeholder min-h-[200px] flex items-center justify-center rounded-md"
@@ -357,14 +359,14 @@ const IncidentHandling: React.FC = observer(() => {
                 <div>
                   <label className="flex items-center gap-2">
                     <input type="checkbox" {...register("isRoadBlockage")} />
-                    Road Blockage
+                   Road Blockage
                   </label>
                 </div>
 
                 {watchIsRoadBlockage && (
                   <div className="flex flex-col md:flex-row md:justify-between space-x-8 space-y-4">
                     <div className="flex flex-col gap-2 md:w-1/2">
-                      <label>Road Name</label>
+                      <label>{t("road_name")}</label>
                       <input
                         {...register("roadName", { required: "Road name is required" })}
                         placeholder="Road Name"
@@ -374,7 +376,7 @@ const IncidentHandling: React.FC = observer(() => {
 
                     </div>
                     <div className="flex flex-col gap-2 md:w-1/2">
-                      <label>Estimated Clearance Time</label>
+                      <label>{t("clearance_time")}</label>
                       <input
                         {...register("estimatedClearance", { required: "Estimated clearance is required" })}
                         placeholder="e.g. 2 hours"

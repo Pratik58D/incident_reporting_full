@@ -8,6 +8,7 @@ import ChatRoom from "./pages/ChatRoom"
 import Alternative from "./components/Alternative"
 import IncidentChatRoom from "./pages/IncidentChatRoom"
 import IncidentChat from "./components/Chat"
+import CurrentIncidents from "./pages/CurrentIncidents"
 
 
 
@@ -23,6 +24,8 @@ const App = () => {
         <Route path="/incident-chatroom/:incidentId" element= {<IncidentChatRoom />} />
 
         <Route path="/ichat" element= {<IncidentChat />} />
+
+        <Route path="/current-incidents" element={<CurrentIncidents />}/>
 
         <Route path="/login" element = {<Login/>} />
         <Route path="/signup" element = {<Login/>} />
