@@ -12,6 +12,8 @@
   "footer_menu_legal": "Legal",
   "report" : "Report Incident",
   "chat" : "Enter chat",
+  "home" :   "Home",
+  "back": "Back",
 
   "your_information" :"Your Information",
   "full_name" : "Full Name",
@@ -26,8 +28,9 @@
    "auto_location" : "Click to get GPS coordinates automatically",
   "use_location":"Use My Location",
   "latitude" :"Latitude",
-  "longitude" : "Latitude",
+  "longitude" : "Longitude",
   "media":"Camera/media(Optional)",
   "road_name" : "Road Name",
-  "clearance_time" :"Estimated Clearance Time"
+  "clearance_time" :"Estimated Clearance Time",
+   "current_incident": "Current Incidents"
 }

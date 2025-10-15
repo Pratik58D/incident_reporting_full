@@ -12,6 +12,8 @@
   "footer_menu_legal": "कानुनी",
   "report" : "रिपोर्ट",
   "chat" : "च्याट",
+   "home" :   "गृहपृष्ठ",
+  "back": "फिर्ता",
   
   "your_information": "तपाईंको जानकारी",
   "full_name": "पूरा नाम",
@@ -29,7 +31,8 @@
   "longitude": "देशान्तर (Longitude)",
   "media": "क्यामेरा/मिडिया (वैकल्पिक)",
   "road_name": "सडकको नाम",
-  "clearance_time": "अनुमानित सफा गर्ने समय"
+  "clearance_time": "अनुमानित सफा गर्ने समय",
+  "current_incident": "हालको घटना"
 
 }
 

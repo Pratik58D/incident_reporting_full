@@ -5,10 +5,10 @@ import { getChitChat, postChitchat } from "@/services/chitchatService";
 import socket from "@/services/socket";
 import userStore from "@/store/userStore";
 import { ArrowLeft, Mic, Paperclip, Send, Users } from "lucide-react"
+import { observer} from "mobx-react-lite";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { Link, useParams } from "react-router-dom"
 import { toast } from "react-toastify";
-
 
 interface Message {
     incidentId: number,
@@ -20,8 +20,7 @@ interface Message {
     user_name: string
 }
 
-const IncidentChatRoom = () => {
-
+const IncidentChatRoom = observer(() => {
     const { incidentId } = useParams<{ incidentId: string }>();
     const incidentIdNum = incidentId ? parseInt(incidentId, 10) : undefined;
 
@@ -29,9 +28,6 @@ const IncidentChatRoom = () => {
     const [newMessage, setNewMessage] = useState("");
     const [file, setFile] = useState<File | null>(null);
 
-
-    // const userName = JSON.parse(localStorage.getItem("displayName"));
-    // const userId = JSON.parse(localStorage.getItem("chatUser"));
     const userName = userStore.user.name;
     const userId = userStore.user.id;
 
@@ -40,10 +36,10 @@ const IncidentChatRoom = () => {
         intials = userName.split(" ").map(word => word[0].toUpperCase()).join("");
     }
 
-    console.log("user:", userName, 'incident is: ', incidentId ,"and user id is:" , userId)
+    console.log("user:", userName, 'incident is: ', incidentId);
+    console.log("user_id in mobx: ", userId, "initial is :", intials)
 
     //load existing message from backend
-
     useEffect(() => {
         const fetchMessages = async () => {
             if (!incidentIdNum) return;
@@ -52,7 +48,6 @@ const IncidentChatRoom = () => {
         };
         fetchMessages();
     }, [incidentIdNum])
-
 
     //join the socket room and listen for new messages 
     useEffect(() => {
@@ -63,7 +58,6 @@ const IncidentChatRoom = () => {
         return () => {
             socket.off("message:new");
         }
-
     }, [incidentIdNum]);
 
     //handle file input changes
@@ -76,16 +70,13 @@ const IncidentChatRoom = () => {
     const handleSend = async () => {
         if (!newMessage.trim() && !file) return;
         if (!incidentIdNum) return;
-
-        const res = await postChitchat(incidentIdNum, newMessage, file);
-        console.log(res.data)
-
+        await postChitchat(incidentIdNum, newMessage, file);
         toast.success("message send")
         setNewMessage("");
         setFile(null)
     }
 
-    console.log(messages)
+    console.log("all messages are:", messages)
 
     return (
         <section className="h-screen flex flex-col">
@@ -121,20 +112,16 @@ const IncidentChatRoom = () => {
                         <div className="flex justify-center text-white">
                             <div className=" bg-gray-800 px-3 py-1 flex rounded-lg">
                                 <p className="">{userName} joined the chat.</p>
-
                             </div>
                         </div>
 
                         {messages.map((message) => {
                             const isOwnMessage = Number(message.user_id) === Number(userId);
-                            console.log('isOwnMessage is : ' , isOwnMessage);
-
                             return (
                                 <div key={message.chitchat_id}
                                     className={`flex gap-2 ${isOwnMessage ? "justify-end" : "justify-start"}`}
                                 >
                                     {/* avatar for others */}
-
                                     {!isOwnMessage && (
                                         <Avatar className="border border-gray-300 shadow-md bg-gray-700 text-white cursor-pointer">
                                             <AvatarImage src="" />
@@ -149,41 +136,39 @@ const IncidentChatRoom = () => {
 
                                     {/* message content */}
                                     <div className="flex flex-col gap-1">
-                                        <h4 className={`text-sm ${isOwnMessage ? "text-right text-gray-600" : "text-left text-gray-800"
-                                            }`}
-                                        >
+                                        <h4 className={`text-sm ${isOwnMessage ? "text-right text-gray-600" : "text-left text-gray-800"}`}>
                                             {message.user_name || "Anonymous"}
-
                                         </h4>
                                         <div className="flex items-center">
-                                            {/* dropdown in chat setting */}
-                                            <ChatFunction />
-                                            <p
-                                                className={`px-4 py-2 rounded-md w-fit ${isOwnMessage ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
-                                            >
-                                                {message.text}
-
-                                            </p>
-
+                                            {
+                                                isOwnMessage ? (
+                                                    <>
+                                                        <ChatFunction />
+                                                        <p className="px-4 py-2 rounded-md w-fit bg-blue-600 text-white">
+                                                            {message.text}
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="px-4 py-2 rounded-md w-fit bg-gray-200 text-gray-800">
+                                                            {message.text}
+                                                        </p>
+                                                        <ChatFunction />
+                                                    </>
+                                                )
+                                            }
                                         </div>
-
                                     </div>
 
                                     {/* avatar for own messages */}
-
                                     {isOwnMessage && (
                                         <Avatar className="border border-gray-300 shadow-md bg-gray-700 text-white cursor-pointer">
                                             <AvatarImage src="" />
                                             <AvatarFallback >{intials}</AvatarFallback>
-
                                         </Avatar>
                                     )}
-
                                 </div>
                             )
-
-
-
                         })}
                     </div>
 
@@ -197,13 +182,9 @@ const IncidentChatRoom = () => {
                                 className="hidden"
                                 onChange={handleFileChange}
                             />
-                            <label
-                                htmlFor="chat-file-upload"
-                            >
+                            <label htmlFor="chat-file-upload">
                                 <Paperclip className="w-5 h-5" />
-
                             </label>
-
                         </div>
 
                         <div className="flex flex-1 items-center border border-gray-300 rounded-lg px-3 py-2 gap-2 bg-gray-50">
@@ -214,9 +195,7 @@ const IncidentChatRoom = () => {
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                             />
-                            <button
-                                className="text-gray-500 hover:text-gray-700 transition-color"
-                            >
+                            <button className="text-gray-500 hover:text-gray-700 transition-color">
                                 <Mic className="w-5 h-5" />
                             </button>
                         </div>
@@ -241,14 +220,9 @@ const IncidentChatRoom = () => {
                     <p>Time: 2:30 PM</p>
                     <p>Priority: High</p>
                     <p>Responders: 3 active</p>
-
                 </div>
-
             </main>
-
-
         </section>
     )
-}
-
+})
 export default IncidentChatRoom

@@ -170,7 +170,7 @@ const IncidentHandling: React.FC = observer(() => {
           <div className="flex items-center gap-4">
             <NavLink to="/" className="flex items-center gap-1 text-gray-800">
               <ArrowLeft size={15} />
-              <h1 className="">Back</h1>
+              <h1 className="">{t("back")}</h1>
             </NavLink>
           </div>
           {/* logo */}

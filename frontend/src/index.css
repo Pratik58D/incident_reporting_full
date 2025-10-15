@@ -23,7 +23,6 @@
     --color-form-placeholder : #808183 ; 
  
 
-    --font-sans: "Roboto", system-ui, sans-serif;
     --font-size-base: 16px;
     --font-size-lg: 18px;
     --font-size-xl: 24px;
@@ -33,7 +32,6 @@
 
 @layer base {
   body {
-    font-family: var(--font-sans);
     font-size: var(--font-size-base);
     background-color: var(--color-bg);
     color: #111827;   
@@ -41,13 +39,11 @@
   label{
     color: var(--color-form-label);
     font-weight: 600;
-
   }
   .input-field {
   border: 1px solid #cbd5e1;   
   border-radius: 0.5rem;     
-  padding: 0.5rem;
-               
+  padding: 0.5rem;             
 }  
 
   input::placeholder{

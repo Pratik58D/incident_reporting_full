@@ -8,6 +8,8 @@ import Personal_Information from "@/common/Personal_Information"
 import { FormProvider, useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import userStore from "@/store/userStore";
+import LanguageSelector from "@/common/LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 //type of Incident
 interface Incident {
@@ -40,6 +42,7 @@ const ChatRoom: React.FC = () => {
     const [incidentId, setIncidentId] = useState("");
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const methods = useForm<PersonalData>({
         defaultValues
@@ -64,37 +67,34 @@ const ChatRoom: React.FC = () => {
         try {
 
             // check if the user exists (by email, phone_number)
-            const checkRes = await axios.get(`${apiUrl}/users/check`,{
-                params :{
-                    email  : data.email || undefined,
-                    phone_number : data.phone_number
+            const checkRes = await axios.get(`${apiUrl}/users/check`, {
+                params: {
+                    email: data.email || undefined,
+                    phone_number: data.phone_number
                 }
             })
             let user;
-            if(checkRes.data.exists){
+            if (checkRes.data.exists) {
                 // if user already exists , use it
                 user = checkRes.data.user;
-            }else{
+            } else {
                 //create a new user
                 const res = await axios.post(`${apiUrl}/users`, {
-                name: data.name,
-                phone_number: data.phone_number,
-                email: data.email || null
-            });
-              user = res.data.user
+                    name: data.name,
+                    phone_number: data.phone_number,
+                    email: data.email || null
+                });
+                user = res.data.user
             }
 
-            // // save user data (id comes from backend)
-            // localStorage.setItem("chatUser", JSON.stringify(user.id));
-            // localStorage.setItem("displayName", JSON.stringify(user.name));
-
             userStore.setUser({
-                id : user.id,
-                name : user.name,
-                phone_number : user.phone_number,
-                email : user.email
-            })
-
+                id: user.id,
+                name: user.name,
+                phone_number: user.phone_number,
+                email: user.email
+            });
+            console.log("User stored after registration:", userStore.user);
+            
             reset(defaultValues);
             toast.success("user register sucessfully")
             navigate(`/incident-chatroom/${incidentId}`);
@@ -119,7 +119,7 @@ const ChatRoom: React.FC = () => {
                     <div className="flex items-center gap-4">
                         <NavLink to="/" className="flex items-center gap-1 text-gray-800">
                             <ArrowLeft size={15} />
-                            <h1 className="">Home</h1>
+                            <h1 className="">{t("home")}</h1>
                         </NavLink>
                     </div>
                     {/* logo */}
@@ -131,6 +131,7 @@ const ChatRoom: React.FC = () => {
                             <h1 className="hidden sm:flex font-semibold text-xl text-black">Emergency Chat</h1>
                         </div>
                     </div>
+                    <LanguageSelector />
                 </div>
             </nav>
             <FormProvider {...methods}>
@@ -144,7 +145,7 @@ const ChatRoom: React.FC = () => {
                             <section className="mt-7 py-5 ">
                                 <div className="flex items-center gap-2 mb-5">
                                     <CircleAlert size={30} className="text-error" />
-                                    <h1 className="font-bold text-lg">Current Incidents</h1>
+                                    <h1 className="font-bold text-lg">{t("current_incident")}</h1>
                                 </div>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     {incidentData.map((incident) => (
