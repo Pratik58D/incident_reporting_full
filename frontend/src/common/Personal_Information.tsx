@@ -22,7 +22,7 @@ const Personal_Information: React.FC = () => {
                 <Users />
                 <h2 className="text-lg font-bold">{t("your_information")}</h2>
             </div>
-            <form className="grid grid-cols-1 sm:grid-cols-2 sm:items-center gap-2 sm:flex-row sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:items-center gap-2 sm:flex-row sm:gap-4">
                 <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
                     <label>{t("full_name")} *</label>
                     <input
@@ -78,7 +78,7 @@ const Personal_Information: React.FC = () => {
                         <p className="text-red-500 text-sm">{errors.email.message}</p>
                     )}
                 </div>
-            </form>
+            </div>
         </section>
 
     )

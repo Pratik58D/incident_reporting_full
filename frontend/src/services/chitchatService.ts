@@ -6,7 +6,7 @@ import axios from "axios";
 
 export const getChitChat = async(incidentId:number)=>{
     const res = await axios.get(`${apiUrl}/chitchat/${incidentId}`);
-    console.log(res.data.data)
+    // console.log("chichatsevices all messages:",res.data.data)
     return res.data.data;
 }
 

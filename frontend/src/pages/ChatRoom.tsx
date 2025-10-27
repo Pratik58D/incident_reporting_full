@@ -10,19 +10,9 @@ import { toast } from "react-toastify";
 import userStore from "@/store/userStore";
 import LanguageSelector from "@/common/LanguageSelector";
 import { useTranslation } from "react-i18next";
-
-//type of Incident
-interface Incident {
-    incident_id: string;
-    title: string;
-    reported_by?: number;
-    hazard_id?: string;
-    hazard_name: string;
-    name: string;
-    description: string;
-    created_at: Date;
-    priority: "low" | "medium" | "high";
-}
+import { incidentReportStore } from "@/store/incidentReportStore";
+import { toJS } from "mobx";
+import { observer } from "mobx-react-lite";
 
 interface PersonalData {
     name: string;
@@ -36,37 +26,25 @@ const defaultValues: PersonalData = {
     email: ""
 }
 
-
-const ChatRoom: React.FC = () => {
-    const [incidentData, setIncidentData] = useState<Incident[]>([]);
+const ChatRoom: React.FC = observer(() => {
     const [incidentId, setIncidentId] = useState("");
+
+    const {incidents , fetchIncidents , loading} = incidentReportStore;
 
     const navigate = useNavigate();
     const { t } = useTranslation();
-
-    const methods = useForm<PersonalData>({
-        defaultValues
-    });
+    const methods = useForm<PersonalData>({ defaultValues });
 
     const { handleSubmit, reset } = methods;
 
     useEffect(() => {
-        const getIncident = async () => {
-            try {
-                const res = await axios.get(`${apiUrl}/incidents/incident-hazard`);
-                setIncidentData(res.data.incidentHazard);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        getIncident();
-    }, []);
+      fetchIncidents();
+    }, [fetchIncidents]);
 
     // join the chat based on incident ID
     const handleJoinEmergency: SubmitHandler<PersonalData> = async (data) => {
         try {
-
-            // check if the user exists (by email, phone_number)
+      // check if the user exists (by email, phone_number)
             const checkRes = await axios.get(`${apiUrl}/users/check`, {
                 params: {
                     email: data.email || undefined,
@@ -75,7 +53,7 @@ const ChatRoom: React.FC = () => {
             })
             let user;
             if (checkRes.data.exists) {
-                // if user already exists , use it
+                // if user already exists , use same data
                 user = checkRes.data.user;
             } else {
                 //create a new user
@@ -86,7 +64,6 @@ const ChatRoom: React.FC = () => {
                 });
                 user = res.data.user
             }
-
             userStore.setUser({
                 id: user.id,
                 name: user.name,
@@ -108,8 +85,7 @@ const ChatRoom: React.FC = () => {
             }
         }
     }
-
-    console.log("incident+ hazard + user chitchatroom :", incidentData);
+    console.log("incident+ hazard + user chitchatroom :",toJS(incidents));
 
     return (
         <>
@@ -118,8 +94,8 @@ const ChatRoom: React.FC = () => {
                     {/* desktop menu */}
                     <div className="flex items-center gap-4">
                         <NavLink to="/" className="flex items-center gap-1 text-gray-800">
-                            <ArrowLeft size={15} />
-                            <h1 className="">{t("home")}</h1>
+                            <ArrowLeft className="w-5 h-5" />
+                           
                         </NavLink>
                     </div>
                     {/* logo */}
@@ -147,8 +123,12 @@ const ChatRoom: React.FC = () => {
                                     <CircleAlert size={30} className="text-error" />
                                     <h1 className="font-bold text-lg">{t("current_incident")}</h1>
                                 </div>
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    {incidentData.map((incident) => (
+                                {
+                                    loading ? (
+                                        <p>Loading incidents....</p>
+                                    ) :(
+                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    {incidents.map((incident) => (
                                         <HazardTypeCard
                                             key={incident.incident_id}
                                             title={incident.title}
@@ -162,6 +142,10 @@ const ChatRoom: React.FC = () => {
                                         />
                                     ))}
                                 </div>
+
+                                    )
+                                }
+                               
                             </section>
                             <button
                                 type="submit"
@@ -175,6 +159,5 @@ const ChatRoom: React.FC = () => {
             </FormProvider>
         </>
     )
-}
-
+})
 export default ChatRoom;

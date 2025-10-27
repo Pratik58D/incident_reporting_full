@@ -47,7 +47,6 @@ class UserStore {
             const storedUser = localStorage.getItem("User");
             if(storedUser){
                 this.user = JSON.parse(storedUser);
-                console.log('User loaded from Storage: ' ,this.user);
             }
         } catch (error) {
             console.log("Failed to load user from localStorage: " , error);

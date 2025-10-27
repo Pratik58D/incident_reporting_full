@@ -5,7 +5,7 @@ import type { SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AlertTriangle, ArrowLeft, Camera, MapPin, Upload } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { apiUrl } from "@/env";
 import Personal_Information from "@/common/Personal_Information";
 import { incidentReportStore } from "@/store/incidentReportStore";
@@ -60,21 +60,19 @@ const IncidentHandling: React.FC = observer(() => {
   const watchHazardTypeId = watch("hazardTypeId");
   const watchIsRoadBlockage = watch("isRoadBlockage");
   const watchFile = watch("file");
+  const navigate = useNavigate();
 
   const {t} = useTranslation();
 
   // file preview 
   useEffect(() => {
     incidentReportStore.setPreview(watchFile)
-   
   }, [watchFile])
 
   //fetch hazards once
   useEffect(() => {
     incidentReportStore.fetchHazards();
   }, []);
-
-  console.log(incidentReportStore.fetchHazards());
 
 
   // Get device location automatically
@@ -150,6 +148,7 @@ const IncidentHandling: React.FC = observer(() => {
       toast.success("Incident reported successfully!");
       reset(defaultValues);
       incidentReportStore.reset();
+      setValue("file",undefined)
 
     } catch (error) {
       console.error(error);

@@ -22,7 +22,7 @@ const NavBar = () => {
           <h3 className="text-sm text-gray-500">{t("nav_text")}</h3>
         </div>
           </NavLink>
-          <h2><NavLink to= "/current-incidents" className="hidden">Current Incidents</NavLink></h2>
+          <h2><NavLink to= "/see-map" className="">See Map</NavLink></h2>
 
 
         {/* desktop menu */}

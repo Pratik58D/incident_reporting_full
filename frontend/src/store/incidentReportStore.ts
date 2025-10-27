@@ -3,15 +3,33 @@ import axios from "axios" ;
 import { apiUrl } from "@/env";
 
 interface HazardType {
-    id:string;
+    id:number;
     name: string;
     priority : string;
 }
 
+// incident details
+export interface IncidentType {
+    incident_id: string;
+    title: string;
+    reported_by?: number;
+    hazard_id?: string;
+    hazard_name: string;
+    name: string;
+    description: string;
+    created_at: Date;
+    priority: "low" | "medium" | "high";
+    latitude?: number,
+    longitude?: number, 
+}
+
 export class IncidentReportStore{
     hazardTypes : HazardType[] = [];
+    incidents :IncidentType[] = [];
+
     previewUrl : string | null = null;
     uploading = false;
+    loading = false;
 
     constructor(){
         makeAutoObservable(this);
@@ -25,6 +43,22 @@ export class IncidentReportStore{
             })
         } catch (error) {
             console.error("Error Fetching hazard: " , error);
+        }
+    }
+
+     fetchIncidents = async()=>{
+        this.loading = true;
+        try {
+            const res = await axios.get(`${apiUrl}/incidents/incident-hazard`);
+            runInAction(()=>{
+                this.incidents = res.data.incidentHazard;
+                this.loading = false;
+            })            
+        } catch (error) {
+            console.error("error fetching incidents: ", error);
+            runInAction(()=>{
+                this.loading = false;
+            })
         }
     }
 
