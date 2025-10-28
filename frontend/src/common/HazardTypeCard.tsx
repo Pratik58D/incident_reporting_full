@@ -37,9 +37,7 @@ const HazardTypeCard: React.FC<HazardTypeCardProps> = ({
                             <span
                                 className={`w-4 h-4 rounded-full ${getStatusColor(status)}`}
                             ></span>
-                          <h2 className="text-xl font-semibold capitalize">{title}</h2>
-
-                           
+                          <h2 className="text-xl font-semibold capitalize">{title}</h2>                
                         </div>
                          <p className={`capitalize text-sm font-medium text-white  px-4 py-0.5 rounded-md ${getStatusColor(status)} `}>{status}</p>
                     </div>

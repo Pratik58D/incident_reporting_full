@@ -43,12 +43,15 @@
   .input-field {
   border: 1px solid #cbd5e1;   
   border-radius: 0.5rem;     
-  padding: 0.5rem;             
+  padding: 0.5rem;            
 }  
 
   input::placeholder{
     color: var(--color-form-placeholder);
     font-size : 14px;
+  }
+  input:focus{
+    outline: none;
   }
 }
 

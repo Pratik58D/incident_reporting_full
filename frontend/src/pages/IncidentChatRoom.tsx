@@ -1,12 +1,12 @@
 //This is main chat room 
 import ChatFunction from "@/common/ChatFunction";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { apiUrl } from "@/env";
+import { apiUrl, baseUrl } from "@/env";
 import { formatTimeAgo, groupMessagesByDate } from "@/lib/dateutils";
 import { extractLocation } from "@/lib/locationutils";
 import { getChitChat, postChitchat } from "@/services/chitchatService";
 import socket from "@/services/socket";
-import type { IncidentType } from "@/store/incidentReportStore";
+import { incidentReportStore, type IncidentType } from "@/store/incidentReportStore";
 import userStore from "@/store/userStore";
 import axios from "axios";
 import { ArrowLeft, Mic, Paperclip, Send } from "lucide-react"
@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 
 export interface MessageType {
     incidentId: number;
-    user_id: number;
+    userId: number;
     text?: string;
     fileId?: number | null;
     file_name?: string;
@@ -33,16 +33,13 @@ const IncidentChatRoom = observer(() => {
     const { incidentId } = useParams<{ incidentId: string }>();
     const incidentIdNum = incidentId ? parseInt(incidentId, 10) : undefined;
 
-
     const [messages, setMessages] = useState<MessageType[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [file, setFile] = useState<File | null>(null);
+    // const [filePreview , setFilePreview] = useState<string | null>(null);
 
-    const userName = userStore.user.name;
-    const userId = userStore.user.id;
-
-    console.log("user:", userName, 'incident is: ', incidentId);
-    console.log("user_id in mobx: ", userId)
+    // const userName = userStore.user.name;
+    // const userId = userStore.user.id;
 
     //fetch the single incident detail
     useEffect(() => {
@@ -71,6 +68,7 @@ const IncidentChatRoom = observer(() => {
     useEffect(() => {
         socket.emit("join:incident", { incidentId: incidentIdNum });
         socket.on('message:new', (msg: MessageType) => {
+            console.log("Received from socket: ", msg);
             setMessages((prev) => [...prev, msg])
         });
         return () => {
@@ -78,23 +76,28 @@ const IncidentChatRoom = observer(() => {
         }
     }, [incidentIdNum]);
 
-
     //handle file input changes
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             setFile(e.target.files[0])
+            incidentReportStore.setPreview(e.target.files || undefined)
         }
     }
 
     const handleSend = async () => {
         if (!newMessage.trim() && !file) return;
         if (!incidentIdNum) return;
-        await postChitchat(incidentIdNum, newMessage, file);
-
-        toast.success("message send")
-        setNewMessage("");
-        setFile(null)
-    };
+        try {
+            await postChitchat(incidentIdNum, newMessage, file);
+            toast.success("message send")
+            setNewMessage("");
+            setFile(null);
+            incidentReportStore.reset();
+        } catch (error) {
+            toast.error("Failed to send message");
+            console.error(error);
+        }
+    }
 
     const groupMessages = groupMessagesByDate(messages);
     const sortedDates = Object.keys(groupMessages).sort(
@@ -112,7 +115,7 @@ const IncidentChatRoom = observer(() => {
         fetchLocation();
     }, [incident]);
 
-    console.log("ajgsjagja locaiton is :", location)
+    // console.log("ajgsjagja locaiton is :", location)
     console.log("all messages are:", messages)
     console.log("single incident has: ", incident)
 
@@ -136,43 +139,51 @@ const IncidentChatRoom = observer(() => {
                 {/* chat area  */}
                 <div className="flex flex-col flex-1 border-r border-gray-200">
                     {/* messages chat field this has to be fixed at button */}
-                    <section className="px-4 md:px-10 py-3 bg-white shadow-inner flex items-center gap-3 ">
-                        {/* icons */}
-                        <div className="">
-                            <input
-                                type="file"
-                                id="chat-file-upload"
-                                className="hidden"
-                                onChange={handleFileChange}
+                    <section className="bg-white flex flex-col px-4 md:px-10 py-3 ">
+                        {incidentReportStore.previewUrl && (
+                            <img
+                                src={incidentReportStore.previewUrl}
+                                alt="preview"
+                                className="max-w-32 rounded-md mb-2 ml-12"
                             />
-                            <label htmlFor="chat-file-upload">
-                                <Paperclip className="w-5 h-5" />
-                            </label>
-                        </div>
+                        )}
+                        <div className=" flex items-center gap-3 ">
+                            {/* file handlig */}
+                            <div className="">
+                                <input
+                                    type="file"
+                                    id="chat-file-upload"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                                <label htmlFor="chat-file-upload">
+                                    <Paperclip className="w-5 h-5" />
+                                </label>
+                            </div>
 
-                        <div className="flex flex-1 items-center border border-gray-300 rounded-lg px-3 py-2 gap-2 bg-gray-50">
-                            <input
-                                type="text"
-                                placeholder="Type your message..."
-                                className="flex-1 bg-transparent outline-none text-sm"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                            />
-                            <button className="text-gray-500 hover:text-gray-700 transition-color">
-                                <Mic className="w-5 h-5" />
+                            <div className="flex flex-1 items-center border border-gray-300 rounded-lg px-3 py-2 gap-2 bg-gray-50">
+                                <input
+                                    type="text"
+                                    placeholder="Type your message..."
+                                    className="flex-1 bg-transparent outline-none text-sm"
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                />
+                                <button className="text-gray-500 hover:text-gray-700 transition-color">
+                                    <Mic className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <button
+                                className="bg-primaryCol text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-800"
+                                onClick={handleSend}
+                            >
+                                <Send className="w-4 h-4" />
                             </button>
                         </div>
-
-                        <button
-                            className="bg-primaryCol text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-800"
-                            onClick={handleSend}
-                        >
-                            <Send className="w-4 h-4" />
-                        </button>
                     </section>
 
                     {/* messages*/}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 ">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-100 ">
                         {sortedDates.map((date) => {
                             return (
                                 <div key={date}>
@@ -181,15 +192,19 @@ const IncidentChatRoom = observer(() => {
                                     </div>
                                     {groupMessages[date].map(message => {
                                         let intials = "";
+                                        // console.log("log_date:", message.log_date);
+
                                         if (message.user_name) {
                                             intials = message.user_name.split(" ").map((word: string) => word[0].toUpperCase()).join("");
                                         }
 
+                                        console.log(`${baseUrl}/uploads/${message.file_name}`)
+
+
                                         return (
                                             <div key={message.chitchat_id} className='flex flex-col justify-start mb-4'>
-
                                                 {/* message content */}
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 mb-2">
                                                     <Avatar className="border-none shadow-md bg-gray-700 text-white cursor-pointer">
                                                         <AvatarImage src="" />
                                                         <AvatarFallback >{intials}</AvatarFallback>
@@ -199,7 +214,6 @@ const IncidentChatRoom = observer(() => {
                                                             <h4 className='text-sm text-gray-600 capitalize'>
                                                                 {message.user_name || userStore.user.name || "Anonymous"}
                                                             </h4>
-
                                                         </div>
 
                                                         <div className="flex items-baseline-last">
@@ -215,13 +229,19 @@ const IncidentChatRoom = observer(() => {
                                                         </div>
                                                     </div>
                                                 </div>
+                                                {/* file Message */}
+                                                {message.file_name && (
+                                                    <img
+                                                        src={`${baseUrl}/uploads/message/${message.file_name}`}
+                                                        alt={message.file_name}
+                                                        className="max-w-40 rounded-md ml-12 shadow-lg bg-white p-0.5 hover:shadow-2xl"
+                                                    />
+                                                )}
                                             </div>
-                                        )
-                                    }
+                                        )}
                                     )}
                                 </div>
-                            )
-                        })}
+                            )})}
                     </div>
                 </div>
 
@@ -230,19 +250,17 @@ const IncidentChatRoom = observer(() => {
                     <div className="bg-white flex flex-col p-4 rounded-lg shadow-md hover:shadow-xl">
                         <h2 className="font-semibold mb-4 text-center">Incident Details</h2>
                         <hr className="text-gray-400" />
-
                         <div className="flex flex-col mt-4 gap-2">
-                            <p className="text-md font-semibold">Location: <span className="text-sm font-normal"> {location}</span></p>
-                            <p className="text-md font-semibold" >Hazard: <span className="text-sm font-normal">{incident?.hazard_name}</span></p>
-                            <p className="text-md font-semibold">Reporter: <span className="text-sm font-normal">{incident?.name}</span></p>
-                            <p className="text-md font-semibold">Time: <span className="text-sm font-normal">{incident?.created_at ? new Date(incident.created_at).toLocaleString() : ""}</span> </p>
-                            <p className="text-md font-semibold">Priority: <span className="text-sm font-normal">{incident?.priority}</span></p>
+                            <p className="text-md font-semibold">Location: <span className="text-sm font-normal capitalize"> {location}</span></p>
+                            <p className="text-md font-semibold" >Hazard: <span className="text-sm font-normal capitalize">{incident?.hazard_name}</span></p>
+                            <p className="text-md font-semibold">Reporter: <span className="text-sm font-normal capitalize">{incident?.name}</span></p>
+                            <p className="text-md font-semibold">Time: <span className="text-sm font-normal capitalize">{incident?.created_at ? new Date(incident.created_at).toLocaleString() : ""}</span> </p>
+                            <p className="text-md font-semibold">Priority: <span className="text-sm font-normal capitalize">{incident?.priority}</span></p>
                         </div>
                     </div>
-
                 </aside>
             </main>
         </section>
     )
 })
-export default IncidentChatRoom
+export default IncidentChatRoom;

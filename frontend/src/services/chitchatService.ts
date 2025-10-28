@@ -3,17 +3,15 @@ import userStore from "@/store/userStore";
 import axios from "axios";
 
 
-
 export const getChitChat = async(incidentId:number)=>{
     const res = await axios.get(`${apiUrl}/chitchat/${incidentId}`);
     // console.log("chichatsevices all messages:",res.data.data)
     return res.data.data;
 }
 
-
 export const postChitchat = async(incidentId: number , text:string, file?: File | null )=>{
-   
-    const userId = userStore.user.id;    
+    const userId = userStore.user.id; 
+    console.log(userId)   
     const formData = new FormData();
     if(text) formData.append("text",text)
     if(file) formData.append("file",file)

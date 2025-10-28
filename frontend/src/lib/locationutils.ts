@@ -6,7 +6,7 @@ export const extractLocation = async (lat: number, lon: number) => {
             `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
         );
         
-        console.log("the location is: ", response.data.display_name)
+        // console.log("the location is: ", response.data.display_name)
         return response.data.display_name
 
     } catch (error) {

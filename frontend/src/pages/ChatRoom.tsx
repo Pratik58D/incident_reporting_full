@@ -1,7 +1,7 @@
 import HazardTypeCard from "@/common/HazardTypeCard"
 import { apiUrl } from "@/env";
 import axios from "axios";
-import { ArrowLeft, CircleAlert, MessageCircle } from "lucide-react"
+import { ArrowLeft, CircleAlert, MessageCircle, Search } from "lucide-react"
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Personal_Information from "@/common/Personal_Information"
@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { incidentReportStore } from "@/store/incidentReportStore";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
+import {debounce} from "lodash"
 
 interface PersonalData {
     name: string;
@@ -28,8 +29,8 @@ const defaultValues: PersonalData = {
 
 const ChatRoom: React.FC = observer(() => {
     const [incidentId, setIncidentId] = useState("");
-
-    const {incidents , fetchIncidents , loading} = incidentReportStore;
+    const { incidents, fetchIncidents, loading } = incidentReportStore;
+    const [searchHazard, setSearchHazard] = useState("");
 
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -38,13 +39,22 @@ const ChatRoom: React.FC = observer(() => {
     const { handleSubmit, reset } = methods;
 
     useEffect(() => {
-      fetchIncidents();
-    }, [fetchIncidents]);
+        const debouncedFetch = debounce(()=>{
+             fetchIncidents(searchHazard);
+        },500);      //wait 500ms after typing stops
+       
+        debouncedFetch();
+        // cleanup on unmound or when searchHazard changes
+        return ()=>{
+            debouncedFetch.cancel();
+        }
+    }, [fetchIncidents, searchHazard]);
 
     // join the chat based on incident ID
     const handleJoinEmergency: SubmitHandler<PersonalData> = async (data) => {
+        console.log("the data is :", data)
         try {
-      // check if the user exists (by email, phone_number)
+            // check if the user exists (by email, phone_number)
             const checkRes = await axios.get(`${apiUrl}/users/check`, {
                 params: {
                     email: data.email || undefined,
@@ -70,8 +80,7 @@ const ChatRoom: React.FC = observer(() => {
                 phone_number: user.phone_number,
                 email: user.email
             });
-            console.log("User stored after registration:", userStore.user);
-            
+            // console.log("User stored after registration:", userStore.user);
             reset(defaultValues);
             toast.success("user register sucessfully")
             navigate(`/incident-chatroom/${incidentId}`);
@@ -85,7 +94,7 @@ const ChatRoom: React.FC = observer(() => {
             }
         }
     }
-    console.log("incident+ hazard + user chitchatroom :",toJS(incidents));
+    console.log("incident+ hazard + user chitchatroom :", toJS(incidents));
 
     return (
         <>
@@ -95,19 +104,31 @@ const ChatRoom: React.FC = observer(() => {
                     <div className="flex items-center gap-4">
                         <NavLink to="/" className="flex items-center gap-1 text-gray-800">
                             <ArrowLeft className="w-5 h-5" />
-                           
+                            <p className="text-lg">Back</p>
+
                         </NavLink>
                     </div>
                     {/* logo */}
-                    <div className="flex items-center gap-1">
+                    <div className="hidden md:flex items-center gap-1">
                         <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-primaryCol text-white">
                             < MessageCircle />
                         </div>
-                        <div>
-                            <h1 className="hidden sm:flex font-semibold text-xl text-black">Emergency Chat</h1>
-                        </div>
+                        <h1 className="hidden sm:flex font-semibold text-xl text-black">Emergency Chat</h1>
                     </div>
-                    <LanguageSelector />
+                    <div className="flex items-center gap-10">
+                        {/* search  */}
+                        <div className="flex gap-2 items-center border p-1 rounded-lg border-gray-300">
+                             <Search  className="w-6 h-6 cursor-pointer" />
+                            <input
+                                type="text"
+                                placeholder="Search by hazard type..."
+                                value={searchHazard}
+                                onChange={(e) => setSearchHazard(e.target.value)}
+                                className=" p-1 w-full focus:outline-none"
+                            />
+                        </div>
+                        <LanguageSelector />
+                    </div>
                 </div>
             </nav>
             <FormProvider {...methods}>
@@ -116,7 +137,6 @@ const ChatRoom: React.FC = observer(() => {
                         <div className=" max-w-sm sm:max-w-xl md:max-w-5xl flex flex-col  mt-20 mx-auto p-5">
                             {/* name , phone , email section */}
                             <Personal_Information />
-
                             {/* section hazard type */}
                             <section className="mt-7 py-5 ">
                                 <div className="flex items-center gap-2 mb-5">
@@ -126,26 +146,23 @@ const ChatRoom: React.FC = observer(() => {
                                 {
                                     loading ? (
                                         <p>Loading incidents....</p>
-                                    ) :(
-                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    {incidents.map((incident) => (
-                                        <HazardTypeCard
-                                            key={incident.incident_id}
-                                            title={incident.title}
-                                            onClick={() => setIncidentId(incident.incident_id)}
-                                            selected={incidentId === incident.incident_id}
-                                            hazard={incident.hazard_name}
-                                            fullName={incident.name}
-                                            IncidentDescription={incident.description}
-                                            createdAt={incident.created_at}
-                                            status={incident.priority}
-                                        />
-                                    ))}
-                                </div>
-
-                                    )
-                                }
-                               
+                                    ) : (
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                            {incidents.map((incident) => (
+                                                <HazardTypeCard
+                                                    key={incident.incident_id}
+                                                    title={incident.title}
+                                                    onClick={() => setIncidentId(incident.incident_id)}
+                                                    selected={incidentId === incident.incident_id}
+                                                    hazard={incident.hazard_name}
+                                                    fullName={incident.name}
+                                                    IncidentDescription={incident.description}
+                                                    createdAt={incident.created_at}
+                                                    status={incident.priority}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
                             </section>
                             <button
                                 type="submit"

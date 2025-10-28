@@ -28,7 +28,7 @@ const Personal_Information: React.FC = () => {
                     <input
                         type="text"
                         placeholder="Enter Your Full Name"
-                        className="flex-1 border border-gray-300 px-3 py-2 bg-gray-50  text-gray-900 text-sm rounded-lg focus:border-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                        className="flex-1 border border-gray-300 px-3 py-2 bg-gray-50  text-gray-900 text-sm rounded-lg focus:border focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                         {...register("name", {
                             required: "Full Name is Required..",
                             minLength: {
@@ -48,7 +48,7 @@ const Personal_Information: React.FC = () => {
                     <input
                         type="text"
                         placeholder="Enter Your Phone Number"
-                        className="flex-1 border border-gray-300 px-3 py-2 bg-gray-50  text-gray-900 text-sm rounded-lg focus:border-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                        className="flex-1 border border-gray-300 px-3 py-2 bg-gray-50  text-gray-900 text-sm rounded-lg focus:border focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                         {...register("phone_number", {
                             required: "Phone number is required",
                             pattern: {
@@ -61,12 +61,12 @@ const Personal_Information: React.FC = () => {
                         <p className="text-red-500 text-sm">{errors.phone_number.message}</p>
                     )}
                 </div>
-                <div className="col-span-2 flex flex-col gap-2">
+                <div className=" flex flex-col gap-2 col-span-1">
                     <label>{t("email_address")}</label>
                     <input
                         type="email"
                         placeholder="your.email@gmail.com"
-                        className="flex-1 border border-gray-300 px-3 py-2 bg-gray-50  text-gray-900 text-sm rounded-lg focus:border-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                        className="flex-1 border border-gray-300 px-3 py-2 bg-gray-50  text-gray-900 text-sm rounded-lg focus:border focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                         {...register("email", {
                             pattern: {
                                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,

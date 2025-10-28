@@ -38,18 +38,22 @@ export class IncidentReportStore{
     async fetchHazards(){
         try {
             const res = await axios.get(`${apiUrl}/hazards`);
+            console.log(res.data.data)
             runInAction(()=>{
                 this.hazardTypes = res.data.data;
+                
             })
         } catch (error) {
             console.error("Error Fetching hazard: " , error);
         }
     }
 
-     fetchIncidents = async()=>{
+     fetchIncidents = async(hazard?: string)=>{
         this.loading = true;
         try {
-            const res = await axios.get(`${apiUrl}/incidents/incident-hazard`);
+            const res = await axios.get(`${apiUrl}/incidents/incident-hazard`,{
+                params : {hazard}
+            });
             runInAction(()=>{
                 this.incidents = res.data.incidentHazard;
                 this.loading = false;

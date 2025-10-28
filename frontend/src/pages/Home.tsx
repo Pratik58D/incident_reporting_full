@@ -8,7 +8,7 @@ const Home = () => {
   const {t} = useTranslation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 ">
+    <div className="min-h-screen flex flex-col bg-gray-100 ">
       <NavBar />
       <main className="flex flex-col justify-center items-center flex-1 sm:px-10 py-12">
         {/* hero section */}

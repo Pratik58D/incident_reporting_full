@@ -58,11 +58,17 @@ const IncidentHandling: React.FC = observer(() => {
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = methods;
 
   const watchHazardTypeId = watch("hazardTypeId");
-  const watchIsRoadBlockage = watch("isRoadBlockage");
   const watchFile = watch("file");
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const {t} = useTranslation();
+
+  // check if road blockage is selected
+  const isRoadBlockageSelected = incidentReportStore.hazardTypes.find(
+    (h)=>
+      h.id.toString()=== watchHazardTypeId &&
+      h.name.toLowerCase().includes("road_blockage")    
+  )
 
   // file preview 
   useEffect(() => {
@@ -149,6 +155,7 @@ const IncidentHandling: React.FC = observer(() => {
       reset(defaultValues);
       incidentReportStore.reset();
       setValue("file",undefined)
+      navigate("/")
 
     } catch (error) {
       console.error(error);
@@ -354,16 +361,9 @@ const IncidentHandling: React.FC = observer(() => {
               </div>
 
               {/* Road blockage */}
-              <div className="col-span-2 flex flex-col gap-2">
-                <div>
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" {...register("isRoadBlockage")} />
-                   Road Blockage
-                  </label>
-                </div>
-
-                {watchIsRoadBlockage && (
-                  <div className="flex flex-col md:flex-row md:justify-between space-x-8 space-y-4">
+              <div className="col-span-2 flex flex-col gap-2"> 
+                {isRoadBlockageSelected && (
+                  <div className="flex flex-col md:flex-row md:justify-between md:space-x-8 space-y-4">
                     <div className="flex flex-col gap-2 md:w-1/2">
                       <label>{t("road_name")}</label>
                       <input
