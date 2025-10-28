@@ -20,7 +20,7 @@ export const createMessage = async (req: Request, res: Response) => {
         const chatResult = await client.query(
             `INSERT INTO chitchat (user_id , incident_id)
             VALUES ($1 , $2) RETURNING id`,
-            [userId, incidentId]
+            [userIdNum, incidentId]
         );
         const chitchatId = chatResult.rows[0].id;
 
@@ -37,6 +37,7 @@ export const createMessage = async (req: Request, res: Response) => {
 
         //handle file if uploaded
         let fileId: number | null = null;
+        let fileName : string | null = null;
 
         if (req.file) {
             const file = req.file;
@@ -46,6 +47,7 @@ export const createMessage = async (req: Request, res: Response) => {
                 [file.filename, file.originalname, file.size, 1]
             );
             fileId = fileResult.rows[0].id;
+            fileName = file.originalname;
 
             //link file to chictchat_log if text exist
             if (logId) {
@@ -56,11 +58,31 @@ export const createMessage = async (req: Request, res: Response) => {
                 )
             }
         }
+
+        const messageResult = await client.query(
+            `SELECT
+             c.id as chitchat_id,
+             c.log_date,
+             cl.id AS log_id, 
+             cl.text,
+             f.id AS file_id, 
+             f.name AS file_name,
+             u.id AS user_id,
+             u.name AS user_name     
+            FROM chitchat c 
+            LEFT JOIN chitchat_log cl ON cl.chitchat_id = c.id
+            LEFT JOIN chitchat_media cm ON cm.message_id = cl.id
+            LEFT JOIN file f ON f.id = cm.file_id
+            LEFT JOIN users u ON c.user_id = u.id
+            WHERE c.id = $1`,
+            [chitchatId]
+        );
         await client.query("COMMIT");
 
         //emit to socket.IO room
-        const payload = { incidentId, userId, text, fileId };
+        const payload = messageResult.rows[0];
 
+        // console.log("📡 Emitting to room:", `incident:${incidentId}`, payload);
         req.app.get("io")?.to(`incident:${incidentId}`).emit("message:new", payload);
         
         return res.status(201).json(payload);

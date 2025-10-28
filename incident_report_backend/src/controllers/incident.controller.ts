@@ -1,9 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../config/db.js";
 
-
 //create incident 
-
 export const createIncident = async (req: Request, res: Response) => {
     try {
         const { hazardId, title, description, reportedBy, lat, lon, file_id } = req.body;
@@ -92,29 +90,25 @@ export const updateIncident = async (req: Request, res: Response) => {
 }
 
 //delete incident 
-
 export const deleteIncident = async (req: Request, res: Response) => {
-
     try {
         const { id } = req.params;
         const result = await pool.query(`DELETE FROM incident WHERE id= $1 RETURNING *`, [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ message: "Incident not found" });
         }
-
         return res.status(200).json({ success: true, message: "Incident deleted successfully" });
     } catch (error: any) {
         return res.status(500).json({ success: false, error: error.message });
     }
 }
 
-
-// get incident join with hazard
-
-export const getHazardIncident = async(req:Request , res : Response)=>{
+// get all incidents join with hazard
+export const getHazardIncidents = async(req:Request , res : Response)=>{
     try {
-        const result = await pool.query(
-            `SELECT i.id AS incident_id ,
+        const {hazard} = req.query;
+        let query = `
+        SELECT i.id AS incident_id ,
             i.title,
             i.description,
             i.created_at,
@@ -123,12 +117,46 @@ export const getHazardIncident = async(req:Request , res : Response)=>{
             h.name AS hazard_name ,
             h.priority 
             FROM incident i
-            LEFT JOIN users u ON 
-            i.reported_by = u. id 
-            LEFT JOIN hazard_categories h ON 
-            i.hazard_id =h.id 
-            ORDER BY i.created_at DESC `);       
+            LEFT JOIN users u ON  i.reported_by = u. id 
+            LEFT JOIN hazard_categories h ON i.hazard_id =h.id
+            `; 
+            const params: any[] = [];
+            if(hazard){
+                query += ` WHERE h.name ILIKE $1`;
+                params.push(`%${hazard}%`);
+            }
+
+            query += ` ORDER BY i.created_at DESC`;
+
+            const result = await pool.query(query, params);
+                 
         return res.status(200).json({ success: true, incidentHazard : result.rows });        
+    } catch (error :any) {
+        return res.status(500).json({ success: false, error: error.message });        
+    }
+}
+
+// get single incident join with hazard
+export const gethazardIncident = async(req:Request , res : Response)=>{
+    try {
+        const {incidentId} = req.params;
+        const result = await pool.query(
+            `SELECT i.id AS incident_id ,
+            i.title,
+            i.description,
+            i.created_at,
+            ST_X(location_geom) AS longitude,
+            ST_Y(location_geom) AS latitude,
+            u.name,
+            h.id AS hazard_id ,
+            h.name AS hazard_name ,
+            h.priority 
+            FROM incident i
+            LEFT JOIN users u ON i.reported_by = u. id 
+            LEFT JOIN hazard_categories h ON i.hazard_id =h.id 
+            WHERE i.id = $1
+            ORDER BY i.created_at DESC`,[incidentId]);       
+        return res.status(200).json({ success: true, incidentHazard : result.rows[0] });        
     } catch (error :any) {
         return res.status(500).json({ success: false, error: error.message });        
     }

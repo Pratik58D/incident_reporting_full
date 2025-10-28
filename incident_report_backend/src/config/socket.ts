@@ -13,7 +13,7 @@ export function initSocket(server: Server) {
     });
     io.on("connection", (socket: Socket) => {
 
-        // console.log("client connected", socket.id);
+        console.log("client connected", socket.id);
         
         const userId = socket.handshake.query.userId as string;      
        
@@ -25,7 +25,7 @@ export function initSocket(server: Server) {
         //join an incident room
         socket.on("join:incident", ({ incidentId }:{incidentId:number}) => {
             socket.join(`incident:${incidentId}`);
-            socket.emit("joined", { room: `incident : ${incidentId}` });
+            socket.emit("joined",{ room: `incident:${incidentId}`});
             console.log(`Socket ${socket.id} joined incident:${incidentId}`);
         });
 

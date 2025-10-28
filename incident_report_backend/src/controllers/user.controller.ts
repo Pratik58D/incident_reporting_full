@@ -4,13 +4,10 @@ import { pool } from "../config/db.js";
 
 export const createUser = async(req : Request , res: Response) =>{
     try {
-      // console.log("incoming body: " , req.body);
         const {name, phone_number , email , role } =req.body as User;
-
         if(!name || !phone_number){
           return res.status(400).json({error:"Name and Phone number are required"})
         }
-
         const result = await pool.query(
             `INSERT INTO users (name , phone_number ,email ,role) VALUES ($1,$2,$3,COALESCE($4, 'reporter')) RETURNING *`,
             [name,  phone_number ,email || null , role ]
@@ -34,13 +31,13 @@ export const getUsers = async (req: Request, res: Response) => {
 
 
 export const checkUserExists = async(req : Request, res : Response) =>{
-  const {phone ,email} = req.query;
+  const {phone_number ,email} = req.query;
   try {
-    let query = `SELECT * FROM users WHERE 1=1`;
+    let query = `SELECT * FROM users WHERE 1=1 `;
     const values : any[]=[];
 
-    if(phone){
-      values.push(phone)
+    if(phone_number){
+      values.push(phone_number)
       query += `AND phone_number = $${values.length}`;
     }
     if (email) {
