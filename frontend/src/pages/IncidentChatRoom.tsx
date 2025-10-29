@@ -126,6 +126,7 @@ const IncidentChatRoom = observer(() => {
                 <div className="flex items-center gap-5 sm:gap-10">
                     <Link to="/chat" className="flex items-center gap-1">
                         <ArrowLeft className="w-5 h-5 font-semibold" />
+                        <p className="text-md font-medium">Back</p>
                     </Link>
                     <div className="flex gap-2">
                         {/* <h1>logo</h1> */}
@@ -253,7 +254,7 @@ const IncidentChatRoom = observer(() => {
                         <div className="flex flex-col mt-4 gap-2">
                             <p className="text-md font-semibold">Location: <span className="text-sm font-normal capitalize"> {location}</span></p>
                             <p className="text-md font-semibold" >Hazard: <span className="text-sm font-normal capitalize">{incident?.hazard_name}</span></p>
-                            <p className="text-md font-semibold">Reporter: <span className="text-sm font-normal capitalize">{incident?.name}</span></p>
+                            <p className="text-md font-semibold">Reporter: <span className="text-sm font-normal capitalize">{incident?.reporter_name}</span></p>
                             <p className="text-md font-semibold">Time: <span className="text-sm font-normal capitalize">{incident?.created_at ? new Date(incident.created_at).toLocaleString() : ""}</span> </p>
                             <p className="text-md font-semibold">Priority: <span className="text-sm font-normal capitalize">{incident?.priority}</span></p>
                         </div>

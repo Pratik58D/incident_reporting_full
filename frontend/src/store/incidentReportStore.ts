@@ -15,7 +15,7 @@ export interface IncidentType {
     reported_by?: number;
     hazard_id?: string;
     hazard_name: string;
-    name: string;
+    reporter_name: string;
     description: string;
     created_at: Date;
     priority: "low" | "medium" | "high";
@@ -31,6 +31,13 @@ export class IncidentReportStore{
     uploading = false;
     loading = false;
 
+    // New Pagination state
+    currentPage = 1;
+    totalPages = 1;
+    limit = 8;
+
+
+
     constructor(){
         makeAutoObservable(this);
     }
@@ -38,24 +45,25 @@ export class IncidentReportStore{
     async fetchHazards(){
         try {
             const res = await axios.get(`${apiUrl}/hazards`);
-            console.log(res.data.data)
+            // console.log(res.data.data)
             runInAction(()=>{
-                this.hazardTypes = res.data.data;
-                
+                this.hazardTypes = res.data.data;      
             })
         } catch (error) {
             console.error("Error Fetching hazard: " , error);
         }
     }
 
-     fetchIncidents = async(hazard?: string)=>{
+     fetchIncidents = async(hazard?: string , page:number = 1)=>{
         this.loading = true;
         try {
             const res = await axios.get(`${apiUrl}/incidents/incident-hazard`,{
-                params : {hazard}
+                params : {hazard , page , limit : this.limit}
             });
             runInAction(()=>{
                 this.incidents = res.data.incidentHazard;
+                this.currentPage = page;
+                this.totalPages = res.data.pagination.totalPages;
                 this.loading = false;
             })            
         } catch (error) {

@@ -107,13 +107,23 @@ const IncidentHandling: React.FC = observer(() => {
         email: data.email || null
       })
       const userId = userResponse.data.user?.id || userResponse.data.id;
+    
+      console.log("the hazard id before sending data: " , data.hazardTypeId)
+       console.log("sending new hazad : " , {
+            name:data.newHazardType,
+            priority : data.priority
+          })
 
       let hazardId = data.hazardTypeId;;
       // If user entered new hazard type
       if (hazardId === "other" && data.newHazardType) {
-        const res = await axios.post(`${apiUrl}/hazards`, { name: data.newHazardType });
+        const res = await axios.post(`${apiUrl}/hazards`, {
+           name: data.newHazardType ,
+           priority : data.priority
+          });
         hazardId = res.data.data.id;
       }
+      console.log("the hazardId we are sending is: " , hazardId);
 
       // 2. Create incident with user Id
       const incidentRes = await axios.post(`${apiUrl}/incidents`, {
@@ -189,7 +199,6 @@ const IncidentHandling: React.FC = observer(() => {
             </div>
           </div>
           <LanguageSelector />
-
         </div>
       </nav>
 
@@ -200,7 +209,6 @@ const IncidentHandling: React.FC = observer(() => {
           </section>
 
           {/* incident form */}
-
           <section className=" bg-white shadow-lg  hover:shadow-2xl rounded-2xl border border-gray-200 mb-10">
             <h1 className="font-bold text-lg py-4 text-center">{t("report_new_incident")}</h1>
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 justify-between sm:grid-cols-2 gap-y-4 px-8 py-4 gap-x-8  ">
@@ -398,7 +406,6 @@ const IncidentHandling: React.FC = observer(() => {
         </div>
       </div>
     </FormProvider>
-
   );
 });
 

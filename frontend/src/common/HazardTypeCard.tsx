@@ -31,17 +31,17 @@ const HazardTypeCard: React.FC<HazardTypeCardProps> = ({
                       ${selected ? "scale-105 shadow-2xl border border-gray-400 " : "hover:shadow-2xl"}`}
         >
             <CardHeader className="flex flex-col gap-4">
-                <div className="w-full">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
+                <div className="w-full capitalize">
+                    <div className="flex justify-between items-center ">
+                        <div className="flex items-center gap-2 ">
                             <span
                                 className={`w-4 h-4 rounded-full ${getStatusColor(status)}`}
                             ></span>
-                          <h2 className="text-xl font-semibold capitalize">{title}</h2>                
+                          <h2 className="text-xl font-semibold">{title}</h2>                
                         </div>
-                         <p className={`capitalize text-sm font-medium text-white  px-4 py-0.5 rounded-md ${getStatusColor(status)} `}>{status}</p>
+                         <p className={`text-sm font-medium text-white  px-4 py-1 rounded-md ${getStatusColor(status)} `}>{status}</p>
                     </div>
-                     <p className="text-sm text-gray-600 leading-relaxed">
+                     <p className="text-sm text-gray-600 p-2">
                         {IncidentDescription}
                     </p>
                 </div>
@@ -51,13 +51,13 @@ const HazardTypeCard: React.FC<HazardTypeCardProps> = ({
                 <div className="space-y-4">
                    
 
-                    <div className="text-sm text-gray-500 space-y-1 flex justify-between items-center">
+                    <div className="text-sm text-gray-800 space-y-1 flex justify-between items-center">
                         <div className="inline-flex items-center gap-1">
                             <Clock size={17} />
                             <p >{new Date(createdAt).toLocaleDateString()}</p>
                         </div>
                         {hazard && <p className="capitalize">{hazard}</p>}
-                        <p>Reported by <span className="font-medium">{fullName}</span></p>
+                        <p>Reporter : <span className="text-gray-600 capitalize">{fullName}</span></p>
                     </div>
                 </div>
             </CardContent>

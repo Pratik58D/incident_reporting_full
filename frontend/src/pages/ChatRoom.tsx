@@ -14,6 +14,7 @@ import { incidentReportStore } from "@/store/incidentReportStore";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import {debounce} from "lodash"
+import Pagination from "@/components/Pagination";
 
 interface PersonalData {
     name: string;
@@ -113,7 +114,7 @@ const ChatRoom: React.FC = observer(() => {
                         <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-primaryCol text-white">
                             < MessageCircle />
                         </div>
-                        <h1 className="hidden sm:flex font-semibold text-xl text-black">Emergency Chat</h1>
+                        <h1 className="hidden sm:flex font-semibold text-xl text-black">Chit Chat</h1>
                     </div>
                     <div className="flex items-center gap-10">
                         {/* search  */}
@@ -147,7 +148,8 @@ const ChatRoom: React.FC = observer(() => {
                                     loading ? (
                                         <p>Loading incidents....</p>
                                     ) : (
-                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                       <section className="flex flex-col gap-8">
+                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                             {incidents.map((incident) => (
                                                 <HazardTypeCard
                                                     key={incident.incident_id}
@@ -155,21 +157,31 @@ const ChatRoom: React.FC = observer(() => {
                                                     onClick={() => setIncidentId(incident.incident_id)}
                                                     selected={incidentId === incident.incident_id}
                                                     hazard={incident.hazard_name}
-                                                    fullName={incident.name}
+                                                    fullName={incident.reporter_name}
                                                     IncidentDescription={incident.description}
                                                     createdAt={incident.created_at}
                                                     status={incident.priority}
                                                 />
                                             ))}
                                         </div>
+                                        <Pagination
+                                             currentPage={incidentReportStore.currentPage} 
+                                             totalPages={incidentReportStore.totalPages}
+                                             onPageChange={(page)=> incidentReportStore.fetchIncidents(searchHazard , page)}
+                                             />
+                                       </section>
                                     )}
                             </section>
-                            <button
+                        
+                                <button
                                 type="submit"
                                 className="bg-primaryCol text-white w-full md:w-72 py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer"
                             >
-                                Join Emergency Room
+                                Lets Chit Chat
                             </button>
+
+
+                            
                         </div>
                     </div>
                 </form>
