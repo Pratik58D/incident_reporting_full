@@ -1,13 +1,14 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { pool } from "../config/db.js";
 
 
-export const createRoadBlockage = async (req: Request, res: Response) => {
+export const createRoadBlockage = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { incidentId, roadName, blockageType, estimatedClearanceTime } = req.body;
 
         if (!incidentId || !blockageType) {
-            return res.status(404).json({ success: false, message: "insert incidentId and blockage_type" })
+            res.status(400);
+            throw new Error("Please provide both incidentId and blockageType.");
         };
         const result = await pool.query(
             `INSERT INTO road_blockages (incident_id, road_name, blockage_type_id, estimated_clearance_time, created_at)
@@ -17,13 +18,12 @@ export const createRoadBlockage = async (req: Request, res: Response) => {
         );
         return res.status(201).json({ success: true, data: result.rows[0] });
     } catch (error: any) {
-        console.error(error);
-        return res.status(500).json({ success: false, error: "Internal server error" });
+        next(error);
     }
 }
 
 // get all the road blocakge
-export const getRoadBlockages = async (req: Request, res: Response) => {
+export const getRoadBlockages = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await pool.query(
             `SELECT rb.*, i.title AS incident_title, hc.name AS blockage_type_name
@@ -34,14 +34,13 @@ export const getRoadBlockages = async (req: Request, res: Response) => {
         );
         return res.status(200).json({ success: true, data: result.rows });
     } catch (error: any) {
-        console.error(error);
-        return res.status(500).json({ success: false, error: "Internal server error" });
+        next(error)
     }
 }
 
 
 //get single road blockage
-export const getRoadBlockageById = async (req: Request, res: Response) => {
+export const getRoadBlockageById = async (req: Request, res: Response , next: NextFunction) => {
     try {
         const { id } = req.params;
         const result = await pool.query(
@@ -53,20 +52,20 @@ export const getRoadBlockageById = async (req: Request, res: Response) => {
             [id]
         )
         if (result.rowCount === 0) {
-            return res.status(404).json({ error: "Road blockage not found" });
+            res.status(404);
+            throw new Error("Road blockage not found");
         }
         return res.status(200).json({ success: true, data: result.rows[0] });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, error: "Internal server error" });
+       next(error)
     }
 }
 
 //update road blocakge
-export const updateRoadBlockage = async (req: Request, res: Response) => {
+export const updateRoadBlockage = async (req: Request, res: Response , next: NextFunction) => {
     try {
         const { id } = req.params;
-        const { roadName, incidentId ,blockageType, estimatedClearanceTime } = req.body;
+        const { roadName, incidentId, blockageType, estimatedClearanceTime } = req.body;
 
         const fields: string[] = [];
         const values: any[] = [];
@@ -90,25 +89,24 @@ export const updateRoadBlockage = async (req: Request, res: Response) => {
             values.push(estimatedClearanceTime);
         }
         if (fields.length === 0) {
-            return res.status(400).json({ error: "No fields provided to update" });
+            res.status(400);
+            throw new Error("No fields provided to update");
         }
 
         values.push(id);
-
-        const query = `UPDATE road_blockages SET ${fields.join(", ")} WHERE id = $${idx}
-        RETURNING *`;
+        const query = `UPDATE road_blockages SET ${fields.join(", ")} WHERE id = $${idx} RETURNING *`;
 
         const result = await pool.query(query, values);
+
         if (result.rowCount === 0) {
-            return res.status(404).json({ error: "Road blockage not found" });
+           res.status(404);
+      throw new Error("Road blockage not found");
         }
 
         return res.status(200).json({ success: true, data: result.rows[0] });
 
-    } catch (error: any) {
-        console.error(error);
-        return res.status(500).json({ success: false, error: "Internal server error" });
-
+    } catch (error) {
+       next(error);
     }
 }
 

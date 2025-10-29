@@ -1,7 +1,7 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { pool } from "../config/db.js";
 
-export const createMessage = async (req: Request, res: Response) => {
+export const createMessage = async (req: Request, res: Response , next : NextFunction) => {
     const client = await pool.connect();
     try {
         const { incidentId } = req.params;
@@ -12,7 +12,8 @@ export const createMessage = async (req: Request, res: Response) => {
         const userIdNum = userId ? parseInt(userId ,10) : 100;    /// for now individual with 100 is default user
         
         if (!text && !req.file) {
-            return res.status(400).json({ error: "Either text or file is required" });
+            res.status(400)
+            throw new Error("Either text or file is required" );
         }
         await client.query("BEGIN");
 
@@ -86,10 +87,10 @@ export const createMessage = async (req: Request, res: Response) => {
         req.app.get("io")?.to(`incident:${incidentId}`).emit("message:new", payload);
         
         return res.status(201).json(payload);
-    } catch (error: any) {
+
+    } catch (error) {
         await client.query("ROLLBACK");
-        console.error(error);
-        res.status(500).json({ error: "Internal server error" });
+        next(error)
     }
     finally {
         client.release();
@@ -98,7 +99,7 @@ export const createMessage = async (req: Request, res: Response) => {
 
 //get messages of an incident
 
-export const getMessageByIncident = async (req: Request, res: Response) => {
+export const getMessageByIncident = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const { incidentId } = req.params;
 
@@ -123,7 +124,6 @@ export const getMessageByIncident = async (req: Request, res: Response) => {
         );
         return res.status(200).json({ success: true, data: result.rows });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Internal server error" });
+        next(error)     
     }
 }

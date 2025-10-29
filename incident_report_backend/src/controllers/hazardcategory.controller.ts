@@ -1,40 +1,40 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import type { HazardCategory } from "../lib/types.js";
 import { pool } from "../config/db.js";
 
 
-export const createHazardCategory = async (req: Request, res: Response) => {
+export const createHazardCategory = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const { name, priority } = req.body as HazardCategory;
         if (!name) {
-            return res.status(401).json({ message: "hazard name is required " })
+         res.status(401)
+         throw new Error("hazard name is required")
         }
         const result = await pool.query(
             `INSERT INTO hazard_categories (name , priority) VALUES ($1 , $2) RETURNING *`,
             [name, priority || "low"]
         );
         return res.status(201).json({ success: true, data: result.rows[0] });
-    } catch (error: any) {
-        return res.status(500).json({ success: false, error: error.message });
-
+    } catch (error) {
+        next(error)
     }
 }
 
 // get all hazards
-export const getAllHazards = async (req: Request, res: Response) => {
+export const getAllHazards = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const result = await pool.query("SELECT * FROM hazard_categories")
         return res.status(200).json({ sucess: true, data: result.rows })
 
-    } catch (error: any) {
-        return res.status(500).json({ success: false, error: error.message });
+    } catch (error) {
+       next(error)
 
     }
 }
 
 
 //get a single hazards
-export const getHazardById = async (req: Request, res: Response) => {
+export const getHazardById = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const { id } = req.params;
         const result = await pool.query(
@@ -53,7 +53,8 @@ export const getHazardById = async (req: Request, res: Response) => {
             [id]
         );
         if (result.rows.length === 0) {
-            return res.status(404).json({ message: "Hazard category not found" });
+            res.status(404);
+            throw new Error( "Hazard category not found");
         }
         const hazard = {
             id: result.rows[0].hazard_id,
@@ -70,14 +71,14 @@ export const getHazardById = async (req: Request, res: Response) => {
             }))
         }
         return res.status(200).json({ success: true, data: hazard })
-    } catch (error: any) {
-        return res.status(500).json({ success: false, error: error.message });
+    } catch (error) {
+        next(error)
     }
 }
 
 
 // update hazard category
-export const updateHazard = async (req: Request, res: Response) => {
+export const updateHazard = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const { id } = req.params;
         const { name, priority } = req.body as HazardCategory;
@@ -87,17 +88,18 @@ export const updateHazard = async (req: Request, res: Response) => {
             WHERE id = $3 RETURNING *`, [name, priority, id]
         );
         if (result.rows.length === 0) {
-            return res.status(404).json({ message: "Hazard category not found" });
+            res.status(404);
+            throw new Error("Hazard category not found");
         }
         return res.status(200).json({ success: true, data: result.rows[0], message: "hazard updated successfully." });
 
-    } catch (error: any) {
-        return res.status(500).json({ success: false, error: error.message });
+    } catch (error) {
+       next(error);
     }
 }
 
 //delete the hazards
-export const deleteHazard = async (req: Request, res: Response) => {
+export const deleteHazard = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const { id } = req.params;
         const result = await pool.query(
@@ -106,12 +108,11 @@ export const deleteHazard = async (req: Request, res: Response) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ message: "Hazard category not found" });
+            res.status(404);
+            throw new Error("Hazard category not found");
         }
-
         return res.status(200).json({ success: true, message: "Hazard deleted sucessfully" })
-    } catch (error: any) {
-        return res.status(500).json({ success: false, error: error.message });
+    } catch (error) {
+        next(error)
     }
-
 } 

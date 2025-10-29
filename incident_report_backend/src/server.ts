@@ -10,6 +10,7 @@ import incidentRoutes from "./routes/incident.route.js";
 import messageRoutes from "./routes/chitchat.route.js";
 import roadBlockageRoutes from "./routes/roadBlockage.route.js"
 import { initSocket } from "./config/socket.js";
+import { errorMiddleware } from "./middleware/errorMiddleware.js";
 
 
 const port =Number(process.env.PORT) || 5000;
@@ -46,6 +47,8 @@ app.use("/api/chitchat", messageRoutes);
 app.use("/api/road-blockages", roadBlockageRoutes)
 
 
+app.use(errorMiddleware)
+
 server.listen(port, '0.0.0.0', () => {
-    console.log(`server is running at ${port}`)
+    console.log(`server is running at port ${port}`)
 })
