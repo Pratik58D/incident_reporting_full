@@ -144,9 +144,74 @@ export const deleteIncident = async (req: Request, res: Response) => {
 
 // GET /incidents/incident-hazard?search=fire&page=1&limit=10
 
-export const getHazardIncidents = async(req : Request ,res : Response , next : NextFunction) =>{
+export const getHazardIncidents = async(
+    req : Request ,
+    res : Response ,
+    next : NextFunction
+    ) =>{
     try {
-        
+        const {hazard = "" , page = '1' ,limit = "8"} = req.query;
+
+        const pageNum = Number(page);
+        const limitNum = Number(limit);
+        const offset = (pageNum - 1) * limitNum
+
+        // validate pagination params
+        if(pageNum < 1 || limitNum < 1){
+            res.status(400);
+            throw new Error("page and limit must be positive numbers");
+        }
+
+        // Base query for reuse
+        let baseQuery = `
+            FROM incident i
+            LEFT JOIN users u ON i.reported_by = u.id
+            LEFT JOIN hazard_categories h ON i.hazard_id = h.id
+        `;
+        const params : any[] =[];
+
+        // Adding the search filter if provided
+        if(hazard){
+            baseQuery += ` WHERE h.name ILIKE $1`;
+            params.push(`%${hazard}%`);
+        }
+
+        // get total count for pagination
+        const countQuery = `SELECT COUNT(*) AS total ${baseQuery}`;
+        const countResult = await pool.query(countQuery ,params);
+        const total = Number(countResult.rows[0].total);
+
+        // get paginated data
+        const dataQuery = `
+            SELECT
+              i.id AS incident_id,
+              i.title,
+              i.description,
+              i.created_at,
+              u.name AS reporter_name,
+              h.id AS hazard_id,
+              h.name AS hazard_name,
+              h.priority
+            ${baseQuery}
+            ORDER BY i.created_at DESC
+            LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+        `;
+        params.push(limitNum , offset);
+
+        const result = await pool.query(dataQuery ,params);
+
+        return res.status(200).json({
+            success : true,
+            incidentHazard : result.rows,
+            pagination:{
+                total,
+                page:pageNum,
+                limit :limitNum,
+                totalPages : Math.ceil(total/limitNum),
+                hasNextPage : pageNum < Math.ceil(total/limitNum),
+                hasPrevPage : pageNum > 1,
+            }
+        })       
     } catch (error ) {
         next(error)
 }}

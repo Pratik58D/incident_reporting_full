@@ -6,13 +6,31 @@ import { pool } from "../config/db.js";
 export const createHazardCategory = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const { name, priority } = req.body as HazardCategory;
+
         if (!name) {
-         res.status(401)
-         throw new Error("hazard name is required")
+         res.status(401);
+         throw new Error("hazard name is required");
         }
+
+        // checking if (name ,priority) pair already exists
+        const existing = await pool.query(
+            "SELECT * FROM hazard_categories WHERE name = $1 AND priority = $2",
+            [name, priority]
+        );
+
+        // if it is already exist instead of throwing error we should get data
+        if(existing.rows.length > 0){
+            return res.status(200).json({
+                success : true,
+                data : existing.rows[0],
+                message : "Hazard already exists , returning existing record."
+            })    
+        }
+
+        // create new hazard if not found
         const result = await pool.query(
             `INSERT INTO hazard_categories (name , priority) VALUES ($1 , $2) RETURNING *`,
-            [name, priority || "low"]
+            [name, priority]
         );
         return res.status(201).json({ success: true, data: result.rows[0] });
     } catch (error) {
@@ -24,11 +42,12 @@ export const createHazardCategory = async (req: Request, res: Response , next : 
 export const getAllHazards = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const result = await pool.query("SELECT * FROM hazard_categories")
-        return res.status(200).json({ sucess: true, data: result.rows })
-
+        return res.status(200).json({ 
+            sucess: true,
+            data: result.rows
+            })
     } catch (error) {
        next(error)
-
     }
 }
 
