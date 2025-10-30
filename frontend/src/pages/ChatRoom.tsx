@@ -1,5 +1,4 @@
 import HazardTypeCard from "@/common/HazardTypeCard"
-import { apiUrl } from "@/env";
 import axios from "axios";
 import { ArrowLeft, CircleAlert, MessageCircle, Search } from "lucide-react"
 import { useEffect, useState } from "react";
@@ -7,7 +6,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Personal_Information from "@/common/Personal_Information"
 import { FormProvider, useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
-import userStore from "@/store/userStore";
 import LanguageSelector from "@/common/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import { incidentReportStore } from "@/store/incidentReportStore";
@@ -15,6 +13,7 @@ import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import {debounce} from "lodash"
 import Pagination from "@/components/Pagination";
+import { getOrCreateUser } from "@/utils/user";
 
 interface PersonalData {
     name: string;
@@ -54,33 +53,9 @@ const ChatRoom: React.FC = observer(() => {
     // join the chat based on incident ID
     const handleJoinEmergency: SubmitHandler<PersonalData> = async (data) => {
         console.log("the data is :", data)
+       
         try {
-            // check if the user exists (by email, phone_number)
-            const checkRes = await axios.get(`${apiUrl}/users/check`, {
-                params: {
-                    email: data.email || undefined,
-                    phone_number: data.phone_number
-                }
-            })
-            let user;
-            if (checkRes.data.exists) {
-                // if user already exists , use same data
-                user = checkRes.data.user;
-            } else {
-                //create a new user
-                const res = await axios.post(`${apiUrl}/users`, {
-                    name: data.name,
-                    phone_number: data.phone_number,
-                    email: data.email || null
-                });
-                user = res.data.user
-            }
-            userStore.setUser({
-                id: user.id,
-                name: user.name,
-                phone_number: user.phone_number,
-                email: user.email
-            });
+            await getOrCreateUser(data);
             // console.log("User stored after registration:", userStore.user);
             reset(defaultValues);
             toast.success("user register sucessfully")

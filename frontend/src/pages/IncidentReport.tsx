@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import {observer} from "mobx-react-lite";
+import { observer } from "mobx-react-lite";
 import { FormProvider, useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import axios from "axios";
@@ -11,6 +11,7 @@ import Personal_Information from "@/common/Personal_Information";
 import { incidentReportStore } from "@/store/incidentReportStore";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/common/LanguageSelector";
+import { getOrCreateUser } from "@/utils/user";
 
 
 interface IncidentFormData {
@@ -50,7 +51,7 @@ const defaultValues: IncidentFormData = {
 };
 
 const IncidentHandling: React.FC = observer(() => {
-  
+
   const methods = useForm<IncidentFormData>({
     defaultValues,
   })
@@ -61,13 +62,13 @@ const IncidentHandling: React.FC = observer(() => {
   const watchFile = watch("file");
 
   const navigate = useNavigate();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   // check if road blockage is selected
   const isRoadBlockageSelected = incidentReportStore.hazardTypes.find(
-    (h)=>
-      h.id.toString()=== watchHazardTypeId &&
-      h.name.toLowerCase().includes("road_blockage")    
+    (h) =>
+      h.id.toString() === watchHazardTypeId &&
+      h.name.toLowerCase().includes("road_blockage")
   )
 
   // file preview 
@@ -98,34 +99,47 @@ const IncidentHandling: React.FC = observer(() => {
     }
   };
 
+
   const onSubmit: SubmitHandler<IncidentFormData> = async (data) => {
     try {
       // 1. first create user Information
-      const userResponse = await axios.post(`${apiUrl}/users`, {
+      const userResponse = await getOrCreateUser({
         name: data.name,
         phone_number: data.phone_number,
-        email: data.email || null
+        email: data.email
       })
-      const userId = userResponse.data.user?.id || userResponse.data.id;
-    
-      console.log("the hazard id before sending data: " , data.hazardTypeId)
-       console.log("sending new hazad : " , {
-            name:data.newHazardType,
-            priority : data.priority
-          })
+      const userId = userResponse.id;
+      console.log("this users id is : ", userId)
 
-      let hazardId = data.hazardTypeId;;
-      // If user entered new hazard type
-      if (hazardId === "other" && data.newHazardType) {
+      // 2. create the hazard_type.     
+      const selectedHazardName = data.hazardTypeId;
+      let hazardId;
+
+      // user selected "other" && data.newHazardtype
+      if (selectedHazardName === "other" && data.newHazardType) {
         const res = await axios.post(`${apiUrl}/hazards`, {
-           name: data.newHazardType ,
-           priority : data.priority
-          });
+          name: data.newHazardType,
+          priority: data.priority
+        });
         hazardId = res.data.data.id;
       }
-      console.log("the hazardId we are sending is: " , hazardId);
 
-      // 2. Create incident with user Id
+      //user select existing hazard name => check or create hazard with selected priority
+
+      else if (selectedHazardName && data.priority) {
+        // hazardTypeID here is actually the name , not ID
+        const res = await axios.post(`${apiUrl}/hazards`, {
+          name: selectedHazardName,
+          priority: data.priority
+        })
+        // backend either returns existing or newly created one
+        hazardId = res.data.data.id;
+      }
+      console.log("the hazardId we are sending is: ", hazardId);
+      console.log("the hazard Type Name is:", selectedHazardName)
+
+
+      // 3. Create incident with user Id
       const incidentRes = await axios.post(`${apiUrl}/incidents`, {
         title: data.title,
         description: data.description,
@@ -139,7 +153,7 @@ const IncidentHandling: React.FC = observer(() => {
       const incidentId = incidentRes.data.incident.id;
       let fileId = null;
 
-      // 3. Upload file if exists
+      // 4. Upload file if exists
       if (data.file && data.file.length > 0) {
         incidentReportStore.setUploading(true);
         const formData = new FormData();
@@ -151,7 +165,7 @@ const IncidentHandling: React.FC = observer(() => {
         incidentReportStore.setUploading(false);
       }
 
-      // 4. Create road blockage if selected
+      // 5. Create road blockage if selected
       if (data.isRoadBlockage) {
         await axios.post(`${apiUrl}/road-blockages`, {
           incidentId,
@@ -164,8 +178,8 @@ const IncidentHandling: React.FC = observer(() => {
       toast.success("Incident reported successfully!");
       reset(defaultValues);
       incidentReportStore.reset();
-      setValue("file",undefined)
-      navigate("/")
+      setValue("file", undefined)
+      navigate("/chat")
 
     } catch (error) {
       console.error(error);
@@ -180,6 +194,7 @@ const IncidentHandling: React.FC = observer(() => {
 
   return (
     <FormProvider {...methods}>
+      {/* navigation bar */}
       <nav className="fixed top-0 right-0 left-0 z-50 bg-backgrounds/95 backdrop-blur-sm border-b border-b-gray-300 shadow-md p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* desktop menu */}
@@ -202,16 +217,18 @@ const IncidentHandling: React.FC = observer(() => {
         </div>
       </nav>
 
-      <div className="px-4 sm:px-6 lg:px-8">
+      {/* mai section */}
+
+      <main className="px-4 sm:px-6 lg:px-8">
         <div className=" max-w-sm sm:max-w-xl md:max-w-3xl mx-auto mt-32 flex flex-col gap-8 bg-transparent ">
           <section>
-            <Personal_Information/>
+            <Personal_Information />
           </section>
-
           {/* incident form */}
           <section className=" bg-white shadow-lg  hover:shadow-2xl rounded-2xl border border-gray-200 mb-10">
             <h1 className="font-bold text-lg py-4 text-center">{t("report_new_incident")}</h1>
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 justify-between sm:grid-cols-2 gap-y-4 px-8 py-4 gap-x-8  ">
+
               {/* Hazard Type */}
               <div className=" flex flex-col gap-2 col-span-2 sm:col-span-1">
                 <label>{t("hazard_type")} *</label>
@@ -222,11 +239,10 @@ const IncidentHandling: React.FC = observer(() => {
                   <option value="" className="text-form-label">
                     Select Hazard Type
                   </option>
-                  {incidentReportStore.hazardTypes.map((h) => (
-                    <option key={h.id} value={h.id} className="text-form-label">
-                      {h.name}
-                    </option>
-                  ))}
+                  {[...new Map(incidentReportStore.hazardTypes.map(h => [h.name, h])).values()]
+                    .map(h => (
+                      <option key={h.id} value={h.name}>{h.name}</option>
+                    ))}
                   <option value="other" className="text-form-label">Other</option>
                 </select>
                 {watchHazardTypeId === "other" && (
@@ -238,7 +254,6 @@ const IncidentHandling: React.FC = observer(() => {
                 )}
                 {errors.hazardTypeId && <p className="text-red-500">{errors.hazardTypeId.message}</p>}
                 {errors.newHazardType && <p className="text-red-500">{errors.newHazardType.message}</p>}
-
               </div>
 
               {/*Hazard priority  */}
@@ -260,7 +275,6 @@ const IncidentHandling: React.FC = observer(() => {
 
               {/* Incident title */}
               <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
-
                 <label>{t("incident_title")} *</label>
                 <input
                   {...register("title", { required: "Title is required" })}
@@ -268,11 +282,10 @@ const IncidentHandling: React.FC = observer(() => {
                   className="input-field"
                 />
                 {errors.title && <p className="text-error">{errors.title.message}</p>}
-
               </div>
+
               {/* Incident description */}
               <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
-
                 <label>{t("incident_desc")} *</label>
                 <textarea
                   {...register("description", { required: "Description is required" })}
@@ -281,8 +294,8 @@ const IncidentHandling: React.FC = observer(() => {
                   placeholder="Summarize what happened, when it took place, and any important context.."
                 />
                 {/* {errors.description && <p className="text-red-500">{errors.description.message}</p>} */}
-
               </div>
+
               {/* Location */}
               <div className="col-span-2 flex flex-col gap-2">
                 <div className="flex  items-center gap-2 ">
@@ -297,9 +310,7 @@ const IncidentHandling: React.FC = observer(() => {
                     >
                       <MapPin />
                       {t("use_location")}
-
                     </button>
-
                   </div>
                 </div>
 
@@ -327,7 +338,6 @@ const IncidentHandling: React.FC = observer(() => {
                     {errors.longitude && <p className="text-red-500">{errors.longitude.message}</p>}
                   </div>
                 </div>
-
               </div>
 
               {/* File upload */}
@@ -351,7 +361,6 @@ const IncidentHandling: React.FC = observer(() => {
                     </span>
                   </div>
                 </label>
-
                 {incidentReportStore.previewUrl && (
                   <div className="mt-3">
                     <p className="font-semibold">Preview:</p>
@@ -362,14 +371,13 @@ const IncidentHandling: React.FC = observer(() => {
                     />
                   </div>
                 )}
-
                 {incidentReportStore.uploading && (
                   <p className="mt-2 text-blue-600 font-medium">Uploading file...</p>
                 )}
               </div>
 
               {/* Road blockage */}
-              <div className="col-span-2 flex flex-col gap-2"> 
+              <div className="col-span-2 flex flex-col gap-2">
                 {isRoadBlockageSelected && (
                   <div className="flex flex-col md:flex-row md:justify-between md:space-x-8 space-y-4">
                     <div className="flex flex-col gap-2 md:w-1/2">
@@ -402,9 +410,8 @@ const IncidentHandling: React.FC = observer(() => {
               </button>
             </form>
           </section>
-
         </div>
-      </div>
+      </main>
     </FormProvider>
   );
 });
