@@ -12,6 +12,7 @@ import { incidentReportStore } from "@/store/incidentReportStore";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/common/LanguageSelector";
 import { getOrCreateUser } from "@/utils/user";
+import FileUpload from "@/components/FileUpload";
 
 
 interface IncidentFormData {
@@ -67,7 +68,7 @@ const IncidentHandling: React.FC = observer(() => {
   // check if road blockage is selected
   const isRoadBlockageSelected = incidentReportStore.hazardTypes.find(
     (h) =>
-      h.id.toString() === watchHazardTypeId &&
+      h.name.toString() === watchHazardTypeId &&
       h.name.toLowerCase().includes("road_blockage")
   )
 
@@ -200,8 +201,9 @@ const IncidentHandling: React.FC = observer(() => {
           {/* desktop menu */}
           <div className="flex items-center gap-4">
             <NavLink to="/" className="flex items-center gap-1 text-gray-800">
-              <ArrowLeft size={15} />
-              <h1 className="">{t("back")}</h1>
+              
+               <ArrowLeft className="w-5 h-5"/>
+                <p className="text-lg">{t("back")}</p>
             </NavLink>
           </div>
           {/* logo */}
@@ -341,7 +343,7 @@ const IncidentHandling: React.FC = observer(() => {
               </div>
 
               {/* File upload */}
-              <div className="col-span-2">
+              {/* <div className="col-span-2">
                 <input id="file" type="file" {...register("file")} className="sr-only" />
                 <label className="flex items-center gap-2 mb-2 text-form-label" >
                   <Camera size={20} />
@@ -374,7 +376,13 @@ const IncidentHandling: React.FC = observer(() => {
                 {incidentReportStore.uploading && (
                   <p className="mt-2 text-blue-600 font-medium">Uploading file...</p>
                 )}
-              </div>
+              </div> */}
+              <FileUpload
+                onFileChange = {(file) => setValue("file", file ? [file] : undefined)}
+                previewUrl={incidentReportStore.previewUrl}
+                uploading ={incidentReportStore.uploading}
+                label={t("media")}
+              />
 
               {/* Road blockage */}
               <div className="col-span-2 flex flex-col gap-2">
