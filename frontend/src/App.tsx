@@ -5,11 +5,12 @@ import IncidentReport from "./pages/IncidentReport"
 import Login from "./components/Login"
 import { ToastContainer } from "react-toastify"
 import ChatRoom from "./pages/ChatRoom"
-import Alternative from "./components/Alternative"
+// import Alternative from "./components/Alternative"
 import IncidentChatRoom from "./pages/IncidentChatRoom"
 import IncidentChat from "./components/Chat"
 // import CurrentIncidents from "./pages/CurrentIncidents"
 import IncidentView from "./pages/IncidentView"
+import ProtectedRoute from "./components/ProtectedRoute"
 
 
 
@@ -19,8 +20,13 @@ const App = () => {
       <ToastContainer  />
       <Routes>
         <Route path="/" element= {<Home />} />
-        <Route path="/alternative" element= {<Alternative />} />
-        <Route path="/report" element= {< IncidentReport/>} />
+        {/* <Route path="/alternative" element= {<Alternative />} /> */}
+        <Route path="/report"
+         element= {
+         <ProtectedRoute> 
+          <IncidentReport/>
+          </ProtectedRoute>         
+          } />
         <Route path="/chat" element= {<ChatRoom />} />
         <Route path="/incident-chatroom/:incidentId" element= {<IncidentChatRoom />} />
 

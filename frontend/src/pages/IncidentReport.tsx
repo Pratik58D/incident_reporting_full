@@ -7,11 +7,11 @@ import { toast } from "react-toastify";
 import { AlertTriangle, ArrowLeft, MapPin } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { apiUrl } from "@/env";
-import Personal_Information from "@/common/Personal_Information";
+// import Personal_Information from "@/common/Personal_Information";
 import { incidentReportStore } from "@/store/incidentReportStore";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/common/LanguageSelector";
-import { getOrCreateUser } from "@/utils/user";
+// import { getOrCreateUser } from "@/utils/user";
 import FileUpload from "@/components/FileUpload";
 
 
@@ -109,13 +109,13 @@ const IncidentHandling: React.FC = observer(() => {
   const onSubmit: SubmitHandler<IncidentFormData> = async (data) => {
     try {
       // 1. first create user Information
-      const userResponse = await getOrCreateUser({
-        name: data.name,
-        phone_number: data.phone_number,
-        email: data.email
-      })
-      const userId = userResponse.id;
-      console.log("this users id is : ", userId)
+      // const userResponse = await getOrCreateUser({
+      //   name: data.name,
+      //   phone_number: data.phone_number,
+      //   email: data.email
+      // })
+      // const userId = userResponse.id;
+      // console.log("this users id is : ", userId)
 
       // 2. create the hazard_type.     
       const selectedHazardName = data.hazardTypeId;
@@ -224,13 +224,13 @@ const IncidentHandling: React.FC = observer(() => {
         </div>
       </nav>
 
-      {/* mai section */}
+      {/* main section */}
 
       <main className="px-4 sm:px-6 lg:px-8">
         <div className=" max-w-sm sm:max-w-xl md:max-w-3xl mx-auto mt-32 flex flex-col gap-8 bg-transparent ">
-          <section>
+          {/* <section>
             <Personal_Information />
-          </section>
+          </section> */}
           {/* incident form */}
           <section className=" bg-white shadow-lg  hover:shadow-2xl rounded-2xl border border-gray-200 mb-10">
             <h1 className="font-bold text-lg py-4 text-center">{t("report_new_incident")}</h1>

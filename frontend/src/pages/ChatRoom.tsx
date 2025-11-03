@@ -109,7 +109,7 @@ const ChatRoom: React.FC = observer(() => {
                     <div className="px-6 sm:px-10 md:px-16 ">
                         <div className=" max-w-sm sm:max-w-xl md:max-w-5xl flex flex-col  mt-20 mx-auto p-5">
                             {/* name , phone , email section */}
-                            <Personal_Information />
+                            {/* <Personal_Information /> */}
                             {/* section hazard type */}
                             <section className="mt-7 py-5 ">
                                 <div className="flex items-center gap-2 mb-5">
