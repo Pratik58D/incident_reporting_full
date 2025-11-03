@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { AlertTriangle, ArrowLeft, Camera, MapPin, Upload } from "lucide-react";
+import { AlertTriangle, ArrowLeft, MapPin } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { apiUrl } from "@/env";
 import Personal_Information from "@/common/Personal_Information";
@@ -20,6 +20,7 @@ interface IncidentFormData {
   name: string;
   phone_number: string;
   email?: string;
+ 
 
   // incident fields
   hazardTypeId: string;
@@ -29,7 +30,7 @@ interface IncidentFormData {
   description: string;
   latitude: string;
   longitude: string;
-  file?: FileList;
+  file?: File[];
   isRoadBlockage: boolean;
   roadName?: string;
   estimatedClearance?: string;
@@ -74,7 +75,11 @@ const IncidentHandling: React.FC = observer(() => {
 
   // file preview 
   useEffect(() => {
-    incidentReportStore.setPreview(watchFile)
+    if(watchFile && watchFile.length > 0){
+    incidentReportStore.setPreview(watchFile[0])    
+    }else{
+      incidentReportStore.setPreview(undefined)
+    }
   }, [watchFile])
 
   //fetch hazards once

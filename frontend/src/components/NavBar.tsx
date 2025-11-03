@@ -22,15 +22,17 @@ const NavBar = () => {
           <h3 className="text-sm text-gray-500">{t("nav_text")}</h3>
         </div>
           </NavLink>
-          <h2><NavLink to= "/see-map" className="">See Map</NavLink></h2>
-
+           <h2>
+            <NavLink to= "/see-map" className="font-semibold text-xl hover:underline">See Map</NavLink>
+          </h2>
 
         {/* desktop menu */}
         <div className="hidden md:flex items-center gap-4">
-          <div className="flex gap-4 items center">
-          <Facebook className="w-5 h-5 text-gray-800" />
-          <MailPlus className="w-5 h-5 text-gray-800" />
-          <Linkedin className="w-5 h-5 text-gray-800"/>
+           
+          <div className="flex gap-4 items center cursor-pointer">
+          <Facebook className="w-5 h-5 text-gray-800 hover:scale-110" />
+          <MailPlus className="w-5 h-5 text-gray-800 hover:scale-110" />
+          <Linkedin className="w-5 h-5 text-gray-800 hover:scale-110"/>
         </div>
 
           <NavLink to= "login" className="button-secondary">Login</NavLink>

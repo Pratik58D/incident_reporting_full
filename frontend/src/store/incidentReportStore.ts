@@ -27,7 +27,7 @@ export class IncidentReportStore{
     hazardTypes : HazardType[] = [];
     incidents :IncidentType[] = [];
 
-    previewUrl : string | null = null;
+    previewUrl?: string;
     uploading = false;
     loading = false;
 
@@ -74,19 +74,15 @@ export class IncidentReportStore{
         }
     }
 
-    setPreview(file?:FileList){
-        if(file && file.length >0){
-            this.previewUrl = URL.createObjectURL(file[0]);
-        }else{
-            this.previewUrl = null;
-        }
+    setPreview(file?:File){
+            this.previewUrl = file ? URL.createObjectURL(file) : undefined;
     }
 
     setUploading(state :boolean){
         this.uploading = state;
     }
     reset(){
-        this.previewUrl = null;
+        this.previewUrl = undefined;
         this.uploading = false;
     }
 }

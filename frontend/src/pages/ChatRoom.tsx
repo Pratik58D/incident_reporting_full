@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { incidentReportStore } from "@/store/incidentReportStore";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import {debounce} from "lodash"
+import { debounce } from "lodash"
 import Pagination from "@/components/Pagination";
 import { getOrCreateUser } from "@/utils/user";
 
@@ -19,7 +19,6 @@ interface PersonalData {
     name: string;
     phone_number: string;
     email?: string;
-
 }
 const defaultValues: PersonalData = {
     name: "",
@@ -39,13 +38,12 @@ const ChatRoom: React.FC = observer(() => {
     const { handleSubmit, reset } = methods;
 
     useEffect(() => {
-        const debouncedFetch = debounce(()=>{
-             fetchIncidents(searchHazard);
-        },500);      //wait 500ms after typing stops
-       
+        const debouncedFetch = debounce(() => {
+            fetchIncidents(searchHazard);
+        }, 500);      //wait 500ms after typing stops
         debouncedFetch();
         // cleanup on unmound or when searchHazard changes
-        return ()=>{
+        return () => {
             debouncedFetch.cancel();
         }
     }, [fetchIncidents, searchHazard]);
@@ -53,7 +51,7 @@ const ChatRoom: React.FC = observer(() => {
     // join the chat based on incident ID
     const handleJoinEmergency: SubmitHandler<PersonalData> = async (data) => {
         console.log("the data is :", data)
-       
+
         try {
             await getOrCreateUser(data);
             // console.log("User stored after registration:", userStore.user);
@@ -79,9 +77,8 @@ const ChatRoom: React.FC = observer(() => {
                     {/* desktop menu */}
                     <div className="flex items-center gap-4">
                         <NavLink to="/" className="flex items-center gap-1 text-gray-800">
-                            <ArrowLeft className="w-5 h-5" />
+                      <ArrowLeft className="w-5 h-5" />
                             <p className="text-lg">Back</p>
-
                         </NavLink>
                     </div>
                     {/* logo */}
@@ -94,7 +91,7 @@ const ChatRoom: React.FC = observer(() => {
                     <div className="flex items-center gap-10">
                         {/* search  */}
                         <div className="flex gap-2 items-center border p-1 rounded-lg border-gray-300">
-                             <Search  className="w-6 h-6 cursor-pointer" />
+                            <Search className="w-6 h-6 cursor-pointer" />
                             <input
                                 type="text"
                                 placeholder="Search by hazard type..."
@@ -123,40 +120,39 @@ const ChatRoom: React.FC = observer(() => {
                                     loading ? (
                                         <p>Loading incidents....</p>
                                     ) : (
-                                       <section className="flex flex-col gap-8">
-                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                            {incidents.map((incident) => (
-                                                <HazardTypeCard
-                                                    key={incident.incident_id}
-                                                    title={incident.title}
-                                                    onClick={() => setIncidentId(incident.incident_id)}
-                                                    selected={incidentId === incident.incident_id}
-                                                    hazard={incident.hazard_name}
-                                                    fullName={incident.reporter_name}
-                                                    IncidentDescription={incident.description}
-                                                    createdAt={incident.created_at}
-                                                    status={incident.priority}
-                                                />
-                                            ))}
-                                        </div>
-                                        <Pagination
-                                             currentPage={incidentReportStore.currentPage} 
-                                             totalPages={incidentReportStore.totalPages}
-                                             onPageChange={(page)=> incidentReportStore.fetchIncidents(searchHazard , page)}
-                                             />
-                                       </section>
+                                        <section className="flex flex-col gap-8">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {incidents.map((incident) => (
+                                                    <HazardTypeCard
+                                                        key={incident.incident_id}
+                                                        title={incident.title}
+                                                        onClick={() => setIncidentId(incident.incident_id)}
+                                                        selected={incidentId === incident.incident_id}
+                                                        hazard={incident.hazard_name}
+                                                        fullName={incident.reporter_name}
+                                                        IncidentDescription={incident.description}
+                                                        createdAt={incident.created_at}
+                                                        status={incident.priority}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <Pagination
+                                                currentPage={incidentReportStore.currentPage}
+                                                totalPages={incidentReportStore.totalPages}
+                                                onPageChange={(page) => incidentReportStore.fetchIncidents(searchHazard, page)}
+                                            />
+                                        </section>
                                     )}
                             </section>
-                        
-                                <button
+
+                            <button
                                 type="submit"
-                                className="bg-primaryCol text-white w-full md:w-72 py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer"
-                            >
+                                className="bg-primaryCol text-white w-full md:w-72 py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer">
                                 Lets Chit Chat
                             </button>
 
 
-                            
+
                         </div>
                     </div>
                 </form>
