@@ -1,13 +1,152 @@
 import type { NextFunction, Request , Response } from "express";
 import type { User } from "../lib/types.js";
 import { pool } from "../config/db.js";
+import { comparePassword, hashPassword } from "../utils/hashPassword.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
+import jwt from "jsonwebtoken";
+import { strict } from "assert";
 
 interface CheckUserQuery {
   phone_number?: string | undefined;
   email?: string | undefined;
 }
 
+// *********signup controller*******
 
+export const signup = async(req : Request , res : Response , next :NextFunction) =>{
+  try{
+
+    const { name, phone_number, email, password, role } = req.body;
+    if (!name || !phone_number || !password) {
+      res.status(400)
+      throw new Error("Name, phone number and password are required");
+    }
+
+    const existingUser = await pool.query(
+     `SELECT * FROM users WHERE phone_number = $1 OR email = $2`,
+     [phone_number , email]
+    )
+    if(!existingUser){
+      res.status(400)
+      throw new Error("User already exists");
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const newUser = await pool.query(
+       `INSERT INTO users (name, phone_number, email, password, role)
+       VALUES ($1, $2, $3, $4, COALESCE($5, 'reporter')) RETURNING id, name, phone_number, email, role, created_at`,
+       [name , phone_number , email || null , hashedPassword , role]
+    );
+
+    const user = newUser.rows[0];
+
+    const accessToken = generateAccessToken(user.id , user.role);
+    const refreshToken = generateRefreshToken(user.id)
+
+    //set refresh token in secure , HTTP-only cookie
+
+    res.cookie("refreshToken" , refreshToken ,{
+      httpOnly : true,
+      secure : process.env.NODE_ENV === "production",
+      sameSite : "strict",
+      maxAge : 7 * 24 * 60 * 60 * 1000
+    })
+
+    return res.status(201).json({
+      message :"Signup successful",
+      user,
+      accessToken,
+    })
+  }catch(error){
+    next(error);
+  }
+}
+
+// *********login controller*******
+
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {identifier , password} = req.body;
+
+    if(!identifier || !password){
+      res.status(400)
+      throw new Error("phone/email and password are required")
+    }
+    const {rows} = await pool.query(
+        `SELECT * from users WHERE phone_number = $1 OR email = $1 LIMIT 1`,
+        [identifier]
+      );
+      if(rows.length === 0){
+        res.status(401)
+        throw new Error("Invalid credentials")
+      }
+
+      const user = rows[0]
+      const isValid = await comparePassword(password, user.password);
+      if(!isValid){
+        res.status(401)
+        throw new Error("Invalid credentials")
+      }
+
+      const accessToken =  generateAccessToken(user.id,user.role);
+      const refreshToken = generateRefreshToken(user.id);
+
+      res.cookie("refreshToken", refreshToken ,{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+
+      return res.json({
+        message : "login successful",
+        accessToken,
+        user:{
+          id: user.id,
+          name :user.name,
+          email : user.email,
+          phone_number : user.phone_number,
+          role : user.role
+        },
+      });
+}catch(error){
+  next(error)
+}}
+
+// ***********refresh Access token **********
+
+export const refreshAccessToken = async(req: Request, res: Response)=>{
+  const refreshToken = req.cookies.refreshToken;
+  if(!refreshToken){
+    res.status(401)
+    throw new Error("No refresh token found")
+  }
+  try{
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string
+    ) as {userId:number};
+
+    const newAccessToken = generateAccessToken(decoded.userId , "reporter")
+    return res.json({accessToken : newAccessToken});
+  }catch{
+     return res.status(403).json({ message: "Invalid or expired refresh token" });
+  }
+};
+
+// *************LOGOUT ****************
+
+export const logout = (req:Request , res:Response) =>{
+  res.clearCookie("refreshToken",{
+    httpOnly: true,
+    sameSite : 'strict',
+    secure : process.env.NODE_ENV ==="production",
+  });
+  res.json({message:"logged out successfully"})
+}
+
+// createUser
 export const createUser = async(req : Request , res: Response , next: NextFunction) =>{
     try {
         const {name, phone_number , email , role } =req.body as User;

@@ -12,6 +12,7 @@ import roadBlockageRoutes from "./routes/roadBlockage.route.js"
 import { initSocket } from "./config/socket.js";
 import { errorMiddleware } from "./middleware/errorMiddleware.js";
 import { fileURLToPath } from "url";
+import cookieParser from "cookie-parser"
 
 // ES module __dirname workround
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +24,8 @@ const server = http.createServer(app);
 
 //middleware
 app.use(express.json());
+app.use(cookieParser());
+
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(cors({
