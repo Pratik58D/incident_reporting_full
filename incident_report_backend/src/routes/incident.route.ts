@@ -9,9 +9,9 @@ router.post("/", createIncident);
 router.get("/" , getAllIncidents);
 
 router.get("/incident-hazard" , getHazardIncidents);
+router.get("/incident-hazard/:incidentId", gethazardIncident)
 
 router.get("/:id" , getIncidentById);
-router.get("/incident-hazard/:incidentId", gethazardIncident)
 router.put("/:id" , updateIncident);
 router.delete("/:id" , deleteIncident);
 
