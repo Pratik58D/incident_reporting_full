@@ -5,9 +5,11 @@ import { apiUrl, baseUrl } from "@/env";
 import { formatTimeAgo, groupMessagesByDate } from "@/lib/dateutils";
 import { extractLocation } from "@/lib/locationutils";
 import { getChitChat, postChitchat } from "@/services/chitchatService";
-import socket from "@/services/socket";
+// import socket from "@/services/socket";
+import socketServices from "@/services/socket"
+import { authStore } from "@/store/authStore";
 import { incidentReportStore, type IncidentType } from "@/store/incidentReportStore";
-import userStore from "@/store/userStore";
+// import userStore from "@/store/userStore";
 import axios from "axios";
 import { ArrowLeft, Mic, Paperclip, Send } from "lucide-react"
 import { observer } from "mobx-react-lite";
@@ -38,9 +40,6 @@ const IncidentChatRoom = observer(() => {
     const [file, setFile] = useState<File | null>(null);
     // const [filePreview , setFilePreview] = useState<string | null>(null);
 
-    // const userName = userStore.user.name;
-    // const userId = userStore.user.id;
-
     //fetch the single incident detail
     useEffect(() => {
         const fetchSingleIncident = async () => {
@@ -66,7 +65,23 @@ const IncidentChatRoom = observer(() => {
 
     //join the socket room and listen for new messages 
     useEffect(() => {
-        socket.emit("join:incident", { incidentId: incidentIdNum });
+        const socket = socketServices.get();
+
+        if(!socket){
+            console.error("socket not initialized");
+            return;
+        }
+
+        if(!incidentIdNum){
+            console.error("NO incindet ID")
+            return
+        }
+        console.log("joining incindet room: " , incidentIdNum)
+
+        // join the incidnet room
+        socket.emit("join:incident", { incidentId:incidentIdNum });
+
+        // listen for join confirmation
         socket.on('message:new', (msg: MessageType) => {
             console.log("Received from socket: ", msg);
             setMessages((prev) => [...prev, msg])
@@ -124,7 +139,7 @@ const IncidentChatRoom = observer(() => {
             {/* header section */}
             <header className="flex justify-between items-center border-b border-b-gray-200 shadow-md px-2  md:px-10 py-5 flex-shrink-0">
                 <div className="flex items-center gap-5 sm:gap-10">
-                    <Link to="/chat" className="flex items-center gap-1">
+                    <Link to="/incidents" className="flex items-center gap-1">
                         <ArrowLeft className="w-5 h-5 font-semibold" />
                         <p className="text-md font-medium">Back</p>
                     </Link>
@@ -213,7 +228,7 @@ const IncidentChatRoom = observer(() => {
                                                     <div className="flex flex-col gap-1">
                                                         <div className="flex gap-4 items-center">
                                                             <h4 className='text-sm text-gray-600 capitalize'>
-                                                                {message.user_name || userStore.user.name || "Anonymous"}
+                                                                {message.user_name || authStore.user?.name || "Anonymous"}
                                                             </h4>
                                                         </div>
 
@@ -254,7 +269,7 @@ const IncidentChatRoom = observer(() => {
                         <div className="flex flex-col mt-4 gap-2">
                             <p className="text-md font-semibold">Location: <span className="text-sm font-normal capitalize"> {location}</span></p>
                             <p className="text-md font-semibold" >Hazard: <span className="text-sm font-normal capitalize">{incident?.hazard_name}</span></p>
-                            <p className="text-md font-semibold">Reporter: <span className="text-sm font-normal capitalize">{incident?.reporter_name}</span></p>
+                            <p className="text-md font-semibold">Reporter: <span className="text-sm font-normal capitalize">{incident?.name}</span></p>
                             <p className="text-md font-semibold">Time: <span className="text-sm font-normal capitalize">{incident?.created_at ? new Date(incident.created_at).toLocaleString() : ""}</span> </p>
                             <p className="text-md font-semibold">Priority: <span className="text-sm font-normal capitalize">{incident?.priority}</span></p>
                         </div>

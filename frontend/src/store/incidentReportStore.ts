@@ -15,7 +15,7 @@ export interface IncidentType {
     reported_by?: number;
     hazard_id?: string;
     hazard_name: string;
-    reporter_name: string;
+    name: string;
     description: string;
     created_at: Date;
     priority: "low" | "medium" | "high";

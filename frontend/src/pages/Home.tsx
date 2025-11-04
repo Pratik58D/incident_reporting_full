@@ -43,7 +43,7 @@ const Home = () => {
 
           {/* Chat Room Card */}
           <div className="flex flex-col justify-between p-6 rounded-xl border border-gray-200 shadow-md bg-white hover:shadow-xl hover:scale-105 hover:bg-blue-100 transition cursor-pointer h-full">
-            <NavLink to="/chat" className="flex flex-col justify-between h-full">
+            <NavLink to="/incidents" className="flex flex-col justify-between h-full">
               <div className="flex flex-col items-center gap-2">
                 <MessageCircleMore size={60} className="text-primaryCol" />
                 <h2 className="text-xl font-bold">{t("chat_card_title")}</h2>

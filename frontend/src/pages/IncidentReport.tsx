@@ -13,6 +13,8 @@ import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/common/LanguageSelector";
 // import { getOrCreateUser } from "@/utils/user";
 import FileUpload from "@/components/FileUpload";
+import { authStore } from "@/store/authStore";
+import api from "@/lib/refreshtoken";
 
 
 interface IncidentFormData {
@@ -117,13 +119,22 @@ const IncidentHandling: React.FC = observer(() => {
       // const userId = userResponse.id;
       // console.log("this users id is : ", userId)
 
+      const userId =authStore.user?.id;
+      console.log(userId)
+
+      if(!userId){
+        toast.error("User not authenticated, Please Login");
+        navigate("/login");
+        return
+      }
+
       // 2. create the hazard_type.     
       const selectedHazardName = data.hazardTypeId;
       let hazardId;
 
       // user selected "other" && data.newHazardtype
       if (selectedHazardName === "other" && data.newHazardType) {
-        const res = await axios.post(`${apiUrl}/hazards`, {
+        const res = await api.post("/hazards", {
           name: data.newHazardType,
           priority: data.priority
         });
@@ -134,7 +145,7 @@ const IncidentHandling: React.FC = observer(() => {
 
       else if (selectedHazardName && data.priority) {
         // hazardTypeID here is actually the name , not ID
-        const res = await axios.post(`${apiUrl}/hazards`, {
+        const res = await api.post("hazards", {
           name: selectedHazardName,
           priority: data.priority
         })
@@ -146,7 +157,7 @@ const IncidentHandling: React.FC = observer(() => {
 
 
       // 3. Create incident with user Id
-      const incidentRes = await axios.post(`${apiUrl}/incidents`, {
+      const incidentRes = await api.post("/incidents", {
         title: data.title,
         description: data.description,
         lat: parseFloat(data.latitude),
@@ -167,13 +178,13 @@ const IncidentHandling: React.FC = observer(() => {
         formData.append("incidentId", incidentId);
         const fileRes = await axios.post(`${apiUrl}/files/upload`, formData);
         fileId = fileRes.data.data.id;
-        await axios.put(`${apiUrl}/incidents/${incidentId}`, { file_id: fileId });
+        await api.put(`/incidents/${incidentId}`, { file_id: fileId });
         incidentReportStore.setUploading(false);
       }
 
       // 5. Create road blockage if selected
       if (data.isRoadBlockage) {
-        await axios.post(`${apiUrl}/road-blockages`, {
+        await api.post("/road-blockages", {
           incidentId,
           roadName: data.roadName,
           blockageType: hazardId,
@@ -185,7 +196,7 @@ const IncidentHandling: React.FC = observer(() => {
       reset(defaultValues);
       incidentReportStore.reset();
       setValue("file", undefined)
-      navigate("/chat")
+      navigate("/incidents")
 
     } catch (error) {
       console.error(error);

@@ -1,9 +1,8 @@
 import { makeAutoObservable , runInAction } from "mobx";
 import axios from "axios";
+import api from "@/lib/refreshtoken";
 import { apiUrl } from "@/env";
-
-// send cookies automatically
-axios.defaults.withCredentials =true;
+import socketService from "@/services/socket"; 
 
 interface User{
     id: number;
@@ -18,13 +17,40 @@ export class AuthStore{
     accessToken: string | null = null;
     loading = false;
     error : string | null = null;
+    isAuthenticated = false;
 
     constructor(){
         makeAutoObservable(this);
+        this.intializeAuth();
     }
 
-    async signup(
-        data:{
+    async intializeAuth(){
+        try{
+            const res = await api.post(
+                "/users/refresh",
+                {}
+            );
+            runInAction(()=>{
+                console.log(res.data);
+                this.accessToken = res.data.accessToken;
+                this.user = res.data.user;
+                this.isAuthenticated = true;
+                this.loading = false;
+            })
+
+            // intialize socket after successful auth
+            socketService.intialize();
+        }catch{
+            runInAction(()=>{
+                this.user = null;
+                this.accessToken = null;
+                this.isAuthenticated = false;
+                this.loading = false;
+            })
+        }
+    }
+          
+    async signup(data:{
             name : string; 
             phone_number: string; 
             email?:string;
@@ -33,12 +59,22 @@ export class AuthStore{
         }){
             this.loading = true;
             try {
-                const res= await axios.post(`${apiUrl}/user/signup`,data);
+                const res= await api.post(
+                    "/users/signup",
+                    data,
+                    {withCredentials : true}
+                
+                );
                 runInAction(()=>{
                     this.user = res.data.user;
                     this.accessToken = res.data.accessToken;
+                    this.isAuthenticated = true;
                     this.error = null;
-                });       
+                });   
+                
+         // intialize socket after successful auth
+            socketService.intialize();
+    
             } catch (error : unknown) {
                 runInAction(()=>{
                     if(axios.isAxiosError(error)){
@@ -57,12 +93,19 @@ export class AuthStore{
     async login(identifier : string , password : string){
         this.loading = true;
         try{
-            const res = await axios.post(`${apiUrl}/users/login`,{identifier , password});
+            const res = await api.post(
+                "/users/login",
+                {identifier , password},
+                {withCredentials : true}
+            );
             runInAction(()=>{
                 this.user = res.data.user;
                 this.accessToken = res.data.accessToken;
+                this.isAuthenticated = true;
                 this.error = null;
-            })
+            });
+            // intialize socket after successful auth
+            socketService.intialize();
         }catch(error : unknown){
             runInAction(()=>{
                if(axios.isAxiosError(error)){
@@ -80,32 +123,43 @@ export class AuthStore{
 
     async logout(){
         await axios.post(`${apiUrl}/users/logout`);
+             // Disconnect socket before clearing auth
+            socketService.disconnect();
         runInAction(()=>{
             this.user = null;
             this.accessToken = null;
+            this.isAuthenticated = false
         })
     }
 
-
     async refreshAccessToken(){
         try{
-            const res = await axios.post(`${apiUrl}/users/refresh`);
-            runInAction(()=>{
+            const res = await api.post(
+                "/users/refresh",
+                {},
+                {withCredentials : true}    
+
+            );
+            runInAction(()=>{       
+                console.log(res.data)  
                 this.accessToken = res.data.accessToken;
-            })
+                this.user = res.data.user;
+                this.isAuthenticated = true;
+            });
+            return res.data.accessToken;
         }catch(err ){
             runInAction(()=>{
                 this.user = null;
                 this.accessToken = null;
-                console.log(err)
+                this.isAuthenticated = false
             })
+            throw err;
         }
     }
 
     getAuthHeaders(){
         return this.accessToken ? {Authorization : `Bearer ${this.accessToken}`} : {};
     }
-
 }
 
 export const authStore = new AuthStore();

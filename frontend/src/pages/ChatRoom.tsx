@@ -1,9 +1,8 @@
 import HazardTypeCard from "@/common/HazardTypeCard"
-import axios from "axios";
 import { ArrowLeft, CircleAlert, MessageCircle, Search } from "lucide-react"
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import Personal_Information from "@/common/Personal_Information"
+// import Personal_Information from "@/common/Personal_Information"
 import { FormProvider, useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import LanguageSelector from "@/common/LanguageSelector";
@@ -13,7 +12,7 @@ import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { debounce } from "lodash"
 import Pagination from "@/components/Pagination";
-import { getOrCreateUser } from "@/utils/user";
+import { authStore } from "@/store/authStore";
 
 interface PersonalData {
     name: string;
@@ -35,7 +34,7 @@ const ChatRoom: React.FC = observer(() => {
     const { t } = useTranslation();
     const methods = useForm<PersonalData>({ defaultValues });
 
-    const { handleSubmit, reset } = methods;
+    const { handleSubmit } = methods;
 
     useEffect(() => {
         const debouncedFetch = debounce(() => {
@@ -50,24 +49,16 @@ const ChatRoom: React.FC = observer(() => {
 
     // join the chat based on incident ID
     const handleJoinEmergency: SubmitHandler<PersonalData> = async (data) => {
-        console.log("the data is :", data)
-
-        try {
-            await getOrCreateUser(data);
-            // console.log("User stored after registration:", userStore.user);
-            reset(defaultValues);
-            toast.success("user register sucessfully")
-            navigate(`/incident-chatroom/${incidentId}`);
-        } catch (error) {
-            console.error(error);
-            if (axios.isAxiosError(error)) {
-                const errorMessage = error.response?.data?.message || error.message;
-                toast.error(`Error: ${errorMessage}`);
-            } else {
-                toast.error("Something went wrong.");
-            }
+        console.log("the data is :", data);
+        // checking is user is loginor not before chitchat
+        if (!authStore.accessToken) {
+            toast.info("please login before joining chatroom");
+            navigate("/login")
+            return;
         }
+        navigate(`/incident-chatroom/${incidentId}`);
     }
+
     console.log("incident+ hazard + user chitchatroom :", toJS(incidents));
 
     return (
@@ -77,7 +68,7 @@ const ChatRoom: React.FC = observer(() => {
                     {/* desktop menu */}
                     <div className="flex items-center gap-4">
                         <NavLink to="/" className="flex items-center gap-1 text-gray-800">
-                      <ArrowLeft className="w-5 h-5" />
+                            <ArrowLeft className="w-5 h-5" />
                             <p className="text-lg">Back</p>
                         </NavLink>
                     </div>
@@ -107,14 +98,19 @@ const ChatRoom: React.FC = observer(() => {
             <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(handleJoinEmergency)}>
                     <div className="px-6 sm:px-10 md:px-16 ">
-                        <div className=" max-w-sm sm:max-w-xl md:max-w-5xl flex flex-col  mt-20 mx-auto p-5">
+                        <div className="max-w-sm sm:max-w-xl md:max-w-5xl flex flex-col  mt-20 mx-auto p-5">
                             {/* name , phone , email section */}
                             {/* <Personal_Information /> */}
                             {/* section hazard type */}
+                            {/* section Header */}
                             <section className="mt-7 py-5 ">
-                                <div className="flex items-center gap-2 mb-5">
+                                <div className="flex flex-col items-center justify-center gap-2 mb-12">
+                                    <div className="flex gap-2 items-center">
                                     <CircleAlert size={30} className="text-error" />
-                                    <h1 className="font-bold text-lg">{t("current_incident")}</h1>
+                                    <h1 className="font-semibold text-2xl">{t("current_incident")}</h1>
+                                 </div>
+                                 {/* <p>Select a incidet to chitchat.</p> */}
+
                                 </div>
                                 {
                                     loading ? (
@@ -129,7 +125,7 @@ const ChatRoom: React.FC = observer(() => {
                                                         onClick={() => setIncidentId(incident.incident_id)}
                                                         selected={incidentId === incident.incident_id}
                                                         hazard={incident.hazard_name}
-                                                        fullName={incident.reporter_name}
+                                                        fullName={incident.name}
                                                         IncidentDescription={incident.description}
                                                         createdAt={incident.created_at}
                                                         status={incident.priority}
@@ -144,15 +140,11 @@ const ChatRoom: React.FC = observer(() => {
                                         </section>
                                     )}
                             </section>
-
                             <button
                                 type="submit"
                                 className="bg-primaryCol text-white w-full md:w-72 py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer">
                                 Lets Chit Chat
                             </button>
-
-
-
                         </div>
                     </div>
                 </form>

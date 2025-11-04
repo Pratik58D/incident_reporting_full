@@ -27,16 +27,18 @@ const App = () => {
           <IncidentReport/>
           </ProtectedRoute>         
           } />
-        <Route path="/chat" element= {<ChatRoom />} />
-        <Route path="/incident-chatroom/:incidentId" element= {<IncidentChatRoom />} />
+        <Route path="/incidents" element= {<ChatRoom />} />
+        <Route path="/incident-chatroom/:incidentId" 
+        element= {
+          <ProtectedRoute>
+            <IncidentChatRoom />
+          </ProtectedRoute>
+        }/>
 
         <Route path="/ichat" element= {<IncidentChat />} />
-
         <Route path="/see-map" element={<IncidentView />}/>
-
         <Route path="/login" element = {<Login/>} />
         <Route path="/signup" element = {<Login/>} />
-
         <Route path="*" element = {<NotFound />} />
       </Routes>
     

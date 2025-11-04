@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom"
 import { useState } from "react"
-import {  AlertTriangle, Facebook, Linkedin, MailPlus, Menu, X } from "lucide-react";
+import {AlertTriangle, Menu, X } from "lucide-react";
 import LanguageSelector from "@/common/LanguageSelector";
 import { useTranslation } from "react-i18next";
 
@@ -29,14 +29,14 @@ const NavBar = () => {
         {/* desktop menu */}
         <div className="hidden md:flex items-center gap-4">
            
-          <div className="flex gap-4 items center cursor-pointer">
+          {/* <div className="flex gap-4 items center cursor-pointer">
           <Facebook className="w-5 h-5 text-gray-800 hover:scale-110" />
           <MailPlus className="w-5 h-5 text-gray-800 hover:scale-110" />
           <Linkedin className="w-5 h-5 text-gray-800 hover:scale-110"/>
-        </div>
+        </div> */}
 
-          <NavLink to= "login" className="button-secondary">Login</NavLink>
-          <NavLink to="signup" className="button-primary">SignUp</NavLink>
+          {/* <NavLink to= "login" className="button-secondary">Login</NavLink> */}
+          <NavLink to="signup" className="button-primary">Login</NavLink>
            <LanguageSelector />
 
         </div>
@@ -61,12 +61,8 @@ const NavBar = () => {
             <NavLink to="/signup">Sign Up</NavLink>
           </button>
            <LanguageSelector />
-
-         
-
         </div>
       )}
-
     </nav>
   
   )
