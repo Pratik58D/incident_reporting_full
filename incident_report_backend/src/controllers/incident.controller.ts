@@ -188,7 +188,7 @@ export const getHazardIncidents = async(
               i.title,
               i.description,
               i.created_at,
-              u.name AS reporter_name,
+              u.name AS name,
               h.id AS hazard_id,
               h.name AS hazard_name,
               h.priority

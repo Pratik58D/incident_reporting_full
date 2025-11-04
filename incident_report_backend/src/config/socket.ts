@@ -17,7 +17,10 @@ export function initSocket(server: Server) {
         
         const userId = socket.handshake.query.userId as string;      
        
-        if (userId) userSocketMap[userId] = socket.id;
+        if (userId && userId !== "null" && userId !== "undefined") {
+            userSocketMap[userId] = socket.id;
+            console.log(" User mapped:", userId, "->", socket.id);
+        }
 
         // Emit online users to all clients
         io.emit("getOnlineUsers", Object.keys(userSocketMap));

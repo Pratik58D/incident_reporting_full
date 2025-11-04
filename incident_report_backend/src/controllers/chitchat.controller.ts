@@ -1,16 +1,23 @@
 import type { NextFunction, Request, Response } from "express";
 import { pool } from "../config/db.js";
 
-export const createMessage = async (req: Request, res: Response , next : NextFunction) => {
+interface AuthRequest extends Request{
+    user? :{
+        userId: number;
+        name?: string;
+        email?:string;
+    }
+}
+
+export const createMessage = async (req: AuthRequest, res: Response , next : NextFunction) => {
     const client = await pool.connect();
     try {
         const { incidentId } = req.params;
-        const { text ,userId } = req.body;
-
-        //if login throught jwt token else ananymous
-        // future code 
-        const userIdNum = userId ? parseInt(userId ,10) : 100;    /// for now individual with 100 is default user
-        
+        const { text } = req.body;
+         
+        const userIdNum = req.user?.userId;
+        console.log(userIdNum)
+    
         if (!text && !req.file) {
             res.status(400)
             throw new Error("Either text or file is required" );
