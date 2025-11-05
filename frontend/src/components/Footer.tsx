@@ -27,7 +27,7 @@ const Footer = () => {
           <div className="flex flex-col gap-2">
             <h3>{t('footer_menu_quick_action')}</h3>
             <Link to="/report" className="text-gray-500 hover:text-primaryCol transition">Report Incident</Link>
-            <Link to="/chat" className="text-gray-500 hover:text-primaryCol transition">Emergency Chat</Link>
+            <Link to="/incidents" className="text-gray-500 hover:text-primaryCol transition">Emergency Chat</Link>
             <a href="#" className="text-gray-500 hover:text-primaryCol transition">Service Status</a>
           </div>
           <div className="flex flex-col gap-2">

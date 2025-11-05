@@ -23,7 +23,10 @@ const NavBar = () => {
         </div>
           </NavLink>
            <h2>
-            <NavLink to= "/see-map" className="font-semibold text-xl hover:underline">See Map</NavLink>
+            <NavLink 
+            to= "/see-map" 
+            className="hidden sm:block font-semibold text-xl hover:underline">
+              See Map</NavLink>
           </h2>
 
         {/* desktop menu */}

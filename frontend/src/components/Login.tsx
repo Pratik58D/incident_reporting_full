@@ -51,7 +51,7 @@ const Login = observer(() => {
   return (
     <section className="flex flex-col w-full h-screen items-center justify-center">
       <div
-        className="min-w-md flex flex-col px-12 shadow-xl bg-white py-12 gap-8"
+        className="max-w-80 sm:min-w-md flex flex-col px-8 sm:px-12 shadow-xl bg-white py-12 gap-8"
       >
         <div className="text-center">
           <h1 className="text-2xl font-semibold pb-2">Welcome Back</h1>
@@ -64,8 +64,8 @@ const Login = observer(() => {
         >
           {!isLogin && (
             <>
-              <div className="flex flex-col">
-                <label>Name:</label>
+              <div className="flex flex-col ">
+                <label className="mb-0.5">Name:</label>
                 <input
                   type="text"
                   placeholder="Your name"
@@ -75,7 +75,7 @@ const Login = observer(() => {
                 />
               </div>
               <div className="flex flex-col ">
-                <label>Phone:</label>
+                <label className="mb-0.5">Phone:</label>
                 <input
                   type="text"
                   placeholder="Phone number"
@@ -85,7 +85,7 @@ const Login = observer(() => {
                 />
               </div>
               <div className="flex flex-col">
-                <label>Email:</label>
+                <label className="mb-0.5">Email:</label>
                 <input
                   type="email"
                   placeholder="Email (optional)"
@@ -99,7 +99,7 @@ const Login = observer(() => {
           )}
           {isLogin ? (
             <div className="flex flex-col">
-              <label >Phone or Email:</label>
+              <label className="mb-0.5" >Phone or Email:</label>
               <input
                 placeholder="Phone or Email"
                 value={identifier}
@@ -110,7 +110,7 @@ const Login = observer(() => {
           ) : null}
 
           <div className="flex flex-col">
-            <label>Password:</label>
+            <label className="mb-0.5">Password:</label>
             <input
               placeholder="Password.."
               value={password}

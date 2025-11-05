@@ -78,7 +78,7 @@ export class AuthStore{
             } catch (error : unknown) {
                 runInAction(()=>{
                     if(axios.isAxiosError(error)){
-                    this.error = error.response?.data?.message || "Signup failed";
+                    this.error = error.response?.data?.error || "Signup failed";
                     }else if(error instanceof Error){
                         this.error = error.message
                     }
@@ -109,7 +109,7 @@ export class AuthStore{
         }catch(error : unknown){
             runInAction(()=>{
                if(axios.isAxiosError(error)){
-                    this.error = error.response?.data?.message || "login failed";
+                    this.error = error.response?.data?.error || "login failed";
                     }else if(error instanceof Error){
                         this.error = error.message
                     }

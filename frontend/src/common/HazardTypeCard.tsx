@@ -35,7 +35,7 @@ const HazardTypeCard: React.FC<HazardTypeCardProps> = ({
                     <div className="flex justify-between items-center ">
                         <div className="flex items-center gap-2 ">
                             <span
-                                className={`w-4 h-4 rounded-full ${getStatusColor(status)}`}
+                                className={`hidden sm:block w-4 h-4 rounded-full ${getStatusColor(status)}`}
                             ></span>
                           <h2 className="text-xl font-semibold">{title}</h2>                
                         </div>
@@ -49,15 +49,13 @@ const HazardTypeCard: React.FC<HazardTypeCardProps> = ({
 
             <CardContent className="pt-0">
                 <div className="space-y-4">
-                   
-
                     <div className="text-sm text-gray-800 space-y-1 flex justify-between items-center">
                         <div className="inline-flex items-center gap-1">
                             <Clock size={17} />
                             <p >{new Date(createdAt).toLocaleDateString()}</p>
                         </div>
                         {hazard && <p className="capitalize">{hazard}</p>}
-                        <p>Reporter : <span className="text-gray-600 capitalize">{fullName}</span></p>
+                        <p className="hidden sm:block">Reporter : <span className="text-gray-600 capitalize">{fullName}</span></p>
                     </div>
                 </div>
             </CardContent>
