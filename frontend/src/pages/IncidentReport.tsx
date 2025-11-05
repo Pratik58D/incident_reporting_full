@@ -209,6 +209,19 @@ const IncidentHandling: React.FC = observer(() => {
     }
   };
 
+  const handleLogout = async()=>{
+    try {
+      await authStore.logout();
+      incidentReportStore.reset();
+      navigate("/")
+      
+    } catch (error) {
+      console.error("logout failed" , error)
+      toast.error("Logout failed. Please try again.")
+      
+    }
+  }
+ 
   return (
     <FormProvider {...methods}>
       {/* navigation bar */}
@@ -231,8 +244,16 @@ const IncidentHandling: React.FC = observer(() => {
               <h1 className="hidden sm:flex font-semibold text-xl text-black">{t("incident_card_title")}</h1>
             </div>
           </div>
+            <div className="flex gap-8">
+               <button
+              className="button-primary"
+              onClick={handleLogout}
+              >
+              Logout
+              </button>
           <LanguageSelector />
         </div>
+            </div>
       </nav>
 
       {/* main section */}

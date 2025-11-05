@@ -36,7 +36,7 @@ const NavBar = () => {
         </div> */}
 
           {/* <NavLink to= "login" className="button-secondary">Login</NavLink> */}
-          <NavLink to="signup" className="button-primary">Login</NavLink>
+          <NavLink to="login" className="button-primary">Login</NavLink>
            <LanguageSelector />
 
         </div>
@@ -57,9 +57,7 @@ const NavBar = () => {
           <button className="w-full button-primary">
             <NavLink to="/login">Login</NavLink>
           </button>
-          <button className="w-full button-primary">
-            <NavLink to="/signup">Sign Up</NavLink>
-          </button>
+       
            <LanguageSelector />
         </div>
       )}

@@ -7,7 +7,6 @@ import { ToastContainer } from "react-toastify"
 import ChatRoom from "./pages/ChatRoom"
 // import Alternative from "./components/Alternative"
 import IncidentChatRoom from "./pages/IncidentChatRoom"
-import IncidentChat from "./components/Chat"
 // import CurrentIncidents from "./pages/CurrentIncidents"
 import IncidentView from "./pages/IncidentView"
 import ProtectedRoute from "./components/ProtectedRoute"
@@ -34,11 +33,9 @@ const App = () => {
             <IncidentChatRoom />
           </ProtectedRoute>
         }/>
-
-        <Route path="/ichat" element= {<IncidentChat />} />
         <Route path="/see-map" element={<IncidentView />}/>
         <Route path="/login" element = {<Login/>} />
-        <Route path="/signup" element = {<Login/>} />
+        {/* <Route path="/signup" element = {<Login/>} /> */}
         <Route path="*" element = {<NotFound />} />
       </Routes>
     

@@ -126,7 +126,7 @@ const Login = observer(() => {
             {isLogin ? "Login" : "Sign Up"}
           </button>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-2">
             {isLogin ? (
               <>
                 <p>Don't have an account? </p>

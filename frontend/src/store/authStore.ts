@@ -1,7 +1,7 @@
 import { makeAutoObservable , runInAction } from "mobx";
 import axios from "axios";
 import api from "@/lib/refreshtoken";
-import { apiUrl } from "@/env";
+// import { apiUrl } from "@/env";
 import socketService from "@/services/socket"; 
 
 interface User{
@@ -122,14 +122,22 @@ export class AuthStore{
     }
 
     async logout(){
-        await axios.post(`${apiUrl}/users/logout`);
-             // Disconnect socket before clearing auth
-            socketService.disconnect();
+       try {
+         await api.post("/users/logout");
+           
+       } catch (error) {
+        console.warn("Logoout request failed", error);
+       }finally{
+          // Disconnect socket before clearing auth
+        socketService.disconnect();
         runInAction(()=>{
             this.user = null;
             this.accessToken = null;
             this.isAuthenticated = false
         })
+        
+
+       }
     }
 
     async refreshAccessToken(){

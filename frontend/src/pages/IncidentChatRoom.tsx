@@ -14,7 +14,7 @@ import axios from "axios";
 import { ArrowLeft, Mic, Paperclip, Send } from "lucide-react"
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, type ChangeEvent } from "react";
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { toast } from "react-toastify";
 
 export interface MessageType {
@@ -31,6 +31,7 @@ export interface MessageType {
 const IncidentChatRoom = observer(() => {
     const [incident, setIncident] = useState<IncidentType | null>(null);
     const [location, setLocation] = useState("");
+    const navigate = useNavigate();
 
     const { incidentId } = useParams<{ incidentId: string }>();
     const incidentIdNum = incidentId ? parseInt(incidentId, 10) : undefined;
@@ -130,6 +131,20 @@ const IncidentChatRoom = observer(() => {
         fetchLocation();
     }, [incident]);
 
+    // handle logout
+     const handleLogout = async()=>{
+        try {
+          await authStore.logout();
+          incidentReportStore.reset();
+          navigate("/")
+          
+        } catch (error) {
+          console.error("logout failed" , error)
+          toast.error("Logout failed. Please try again.")
+          
+        }
+      }
+
     // console.log("ajgsjagja locaiton is :", location)
     console.log("all messages are:", messages)
     console.log("single incident has: ", incident)
@@ -147,7 +162,14 @@ const IncidentChatRoom = observer(() => {
                         {/* <h1>logo</h1> */}
                         <h1 className="capitalize font-semibold text-xl">{incident?.title}</h1>
                     </div>
+                   
                 </div>
+                  <button
+                        className="button-primary"
+                         onClick={handleLogout}
+                        >
+                      Logout
+                      </button>
             </header>
 
             {/* main chat section */}
@@ -215,7 +237,6 @@ const IncidentChatRoom = observer(() => {
                                         }
 
                                         console.log(`${baseUrl}/uploads/${message.file_name}`)
-
 
                                         return (
                                             <div key={message.chitchat_id} className='flex flex-col justify-start mb-4'>
