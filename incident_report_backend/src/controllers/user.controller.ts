@@ -10,6 +10,8 @@ interface CheckUserQuery {
   email?: string | undefined;
 }
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 // *********signup controller*******
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,6 +21,11 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     if (!name || !phone_number || !password) {
       res.status(400)
       throw new Error("Name, phone number and password are required");
+    }
+
+    if(email && !emailRegex.test(email)){
+      res.status(400);
+      throw new Error("Invalid email format.")
     }
 
     const existingUser = await pool.query(
