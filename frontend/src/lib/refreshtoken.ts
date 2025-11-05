@@ -24,6 +24,12 @@ api.interceptors.response.use(
     (response)=>response,
     async(error)=>{
         const originalRequest = error.config;
+
+        if (originalRequest.url?.includes('/users/refresh')) {
+            return Promise.reject(error);
+        }
+
+
         if(
             error.response &&
             (error.response.status === 401 || error.response.status === 403)&&

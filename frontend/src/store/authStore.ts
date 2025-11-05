@@ -15,7 +15,7 @@ interface User{
 export class AuthStore{
     user : User | null = null;
     accessToken: string | null = null;
-    loading = false;
+    loading = true;
     error : string | null = null;
     isAuthenticated = false;
 
@@ -134,9 +134,8 @@ export class AuthStore{
             this.user = null;
             this.accessToken = null;
             this.isAuthenticated = false
+            this.error = null;
         })
-        
-
        }
     }
 
@@ -149,7 +148,7 @@ export class AuthStore{
 
             );
             runInAction(()=>{       
-                console.log(res.data)  
+                console.log("token refreshed",res.data)  
                 this.accessToken = res.data.accessToken;
                 this.user = res.data.user;
                 this.isAuthenticated = true;
