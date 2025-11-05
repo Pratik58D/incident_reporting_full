@@ -48,7 +48,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: process.env.NODE_ENV === 'prouction' ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path : "/"
     })
@@ -95,7 +95,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: process.env.NODE_ENV === 'prouction' ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path : "/"
     })
