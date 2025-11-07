@@ -106,45 +106,54 @@ const ChatRoom: React.FC = observer(() => {
                             <section className="mt-7 py-5 ">
                                 <div className="flex flex-col items-center justify-center gap-2 mb-12">
                                     <div className="flex gap-2 items-center">
-                                    <CircleAlert size={30} className="text-error" />
-                                    <h1 className="font-semibold text-2xl">{t("current_incident")}</h1>
-                                 </div>
-                                 {/* <p>Select a incidet to chitchat.</p> */}
+                                        <CircleAlert size={30} className="text-error" />
+                                        <h1 className="font-semibold text-2xl">{t("current_incident")}</h1>
+                                    </div>
+                                    {/* <p>Select a incidet to chitchat.</p> */}
 
                                 </div>
                                 {
                                     loading ? (
-                                        <p>Loading incidents....</p>
-                                    ) : (
-                                        <section className="flex flex-col gap-8">
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                                {incidents.map((incident) => (
-                                                    <HazardTypeCard
-                                                        key={incident.incident_id}
-                                                        title={incident.title}
-                                                        onClick={() => setIncidentId(incident.incident_id)}
-                                                        selected={incidentId === incident.incident_id}
-                                                        hazard={incident.hazard_name}
-                                                        fullName={incident.name}
-                                                        IncidentDescription={incident.description}
-                                                        createdAt={incident.created_at}
-                                                        status={incident.priority}
-                                                    />
-                                                ))}
+                                        <div className="flex items-center justify-center min-h-auto">
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                                                <p className="text-gray-600">Loading...</p>
                                             </div>
-                                            <Pagination
-                                                currentPage={incidentReportStore.currentPage}
-                                                totalPages={incidentReportStore.totalPages}
-                                                onPageChange={(page) => incidentReportStore.fetchIncidents(searchHazard, page)}
-                                            />
-                                        </section>
+                                        </div>
+                                    ) : incidents.length === 0 ? (
+                                        <p className="text-center text-gray-500">No incidents found.</p>
+                                    ) : (
+                                        <div>
+                                            <section className="flex flex-col gap-8">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                    {incidents.map((incident) => (
+                                                        <HazardTypeCard
+                                                            key={incident.incident_id}
+                                                            title={incident.title}
+                                                            onClick={() => setIncidentId(incident.incident_id)}
+                                                            selected={incidentId === incident.incident_id}
+                                                            hazard={incident.hazard_name}
+                                                            fullName={incident.name}
+                                                            IncidentDescription={incident.description}
+                                                            createdAt={incident.created_at}
+                                                            status={incident.priority}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <Pagination
+                                                    currentPage={incidentReportStore.currentPage}
+                                                    totalPages={incidentReportStore.totalPages}
+                                                    onPageChange={(page) => incidentReportStore.fetchIncidents(searchHazard, page)}
+                                                />
+                                            </section>
+                                            <button
+                                                type="submit"
+                                                className="bg-primaryCol text-white w-full md:w-72 py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer">
+                                                Lets Chit Chat
+                                            </button>
+                                        </div>
                                     )}
                             </section>
-                            <button
-                                type="submit"
-                                className="bg-primaryCol text-white w-full md:w-72 py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer">
-                                Lets Chit Chat
-                            </button>
                         </div>
                     </div>
                 </form>

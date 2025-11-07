@@ -115,6 +115,7 @@ const IncidentChatRoom = observer(() => {
         }
     }
 
+    //soting messages according to time in  decending order (latest first)  
     const groupMessages = groupMessagesByDate(messages);
     const sortedDates = Object.keys(groupMessages).sort(
         (a, b) => new Date(b).getTime() - new Date(a).getTime()
@@ -146,7 +147,8 @@ const IncidentChatRoom = observer(() => {
 
     // console.log("ajgsjagja locaiton is :", location)
     console.log("all messages are:", messages)
-    console.log("single incident has: ", incident)
+    // console.log("single incident has: ", incident)
+   
 
     return (
         <section className="h-screen flex flex-col">
@@ -173,6 +175,7 @@ const IncidentChatRoom = observer(() => {
                 <div className="flex flex-col flex-1 border-r border-gray-200">
                     <section className="py-5">
                         <h1 className="text-center text-2xl font-semibold">Tell us about the incident...</h1>
+                        
 
                     </section>
                     {/* messages chat field this has to be fixed at button */}
@@ -189,7 +192,14 @@ const IncidentChatRoom = observer(() => {
                         <div className="flex items-center gap-4">
                              <Avatar  className="border-none shadow-md bg-gray-700 text-white cursor-pointer ">
                                     <AvatarImage src="" />
-                                    <AvatarFallback >PD</AvatarFallback>
+                                    <AvatarFallback >
+                                        {authStore.user?.name
+                                        ?.trim()
+                                        .split(/\s+/)
+                                        .map(word => word.charAt(0).toUpperCase())
+                                        .join("") || "A"
+                                        }
+                                    </AvatarFallback>
                                     </Avatar>
                             <div className="flex flex-1 items-center border border-gray-300 rounded-lg px-3 py-2 gap-4 bg-white">
                                 {/* file handling */}
@@ -235,7 +245,7 @@ const IncidentChatRoom = observer(() => {
                                         // console.log("log_date:", message.log_date);
 
                                         if (message.user_name) {
-                                            intials = message.user_name.split(" ").map((word: string) => word[0].toUpperCase()).join("");
+                                            intials = message.user_name.split(" ").map((word: string) =>word ? word[0].toUpperCase() : "").join("");
                                         }
 
                                         console.log(`${baseUrl}/uploads/${message.file_name}`)
