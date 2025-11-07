@@ -148,7 +148,7 @@ const ChatRoom: React.FC = observer(() => {
                                             </section>
                                             <button
                                                 type="submit"
-                                                className="bg-primaryCol text-white w-full md:w-72 py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer">
+                                                className="bg-primaryCol text-white w-full md:w-72 py-3 mt-4 rounded-md text-lg font-semibold hover:bg-primary-dark cursor-pointer">
                                                 Lets Chit Chat
                                             </button>
                                         </div>

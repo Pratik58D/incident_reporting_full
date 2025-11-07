@@ -174,9 +174,7 @@ const IncidentChatRoom = observer(() => {
                 {/* chat area  */}
                 <div className="flex flex-col flex-1 border-r border-gray-200">
                     <section className="py-5">
-                        <h1 className="text-center text-2xl font-semibold">Tell us about the incident...</h1>
-                        
-
+                        <h1 className="text-center text-2xl font-semibold">Tell us about the incident...</h1>             
                     </section>
                     {/* messages chat field this has to be fixed at button */}
                     <section className="flex flex-col px-4 md:px-10 py-3 ">
@@ -190,7 +188,7 @@ const IncidentChatRoom = observer(() => {
                         )} 
 
                         <div className="flex items-center gap-4">
-                             <Avatar  className="border-none shadow-md bg-gray-700 text-white cursor-pointer ">
+                             <Avatar className="border-none shadow-md bg-gray-700 text-white cursor-pointer ">
                                     <AvatarImage src="" />
                                     <AvatarFallback >
                                         {authStore.user?.name

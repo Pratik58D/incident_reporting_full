@@ -1,4 +1,5 @@
 import { authStore } from "@/store/authStore";
+import { Eye, EyeOff } from "lucide-react";
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
@@ -10,6 +11,8 @@ const Login = observer(() => {
   const [phone_number, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [identifier, setIdentifier] = useState("");
   const navigate = useNavigate();
 
@@ -92,7 +95,6 @@ const Login = observer(() => {
                   className="border border-gray-300 px-3 py-2 bg-gray-50 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none"
                 />
               </div>
-
             </>
           )}
           {isLogin ? (
@@ -107,16 +109,24 @@ const Login = observer(() => {
             </div>
           ) : null}
 
-          <div className="flex flex-col">
+          <div className="flex flex-col relative">
             <label className="mb-0.5">Password:</label>
             <input
               placeholder="Password.."
               value={password}
-              type="password"
+              type={showPassword ? "text" : "password"}
               onChange={(e) => setPassword(e.target.value)}
               className="border border-gray-300 px-3 py-2 bg-gray-50  text-gray-900 text-sm rounded-lg focus:border focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             />
+            <div
+              className="absolute right-3 top-9 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+
+            </div>
           </div>
+
           <button
             className="bg-primaryCol text-white w-full py-3 rounded-md  text-lg font-semibold hover:bg-primary-dark cursor-pointer"
             disabled={authStore.loading}
@@ -134,15 +144,15 @@ const Login = observer(() => {
                 >
                   Signup</p>
               </>
-            ): <>
-             <p>Already have an account? </p>
-                <p
-                  className="text-blue-600 cursor-pointer"
-                  onClick={() => setIsLogin(true)}
-                >
-                  SignIn</p>
-            
-            </>} 
+            ) : <>
+          
+              <p>Already have an account? </p>
+              <p
+                className="text-blue-600 cursor-pointer"
+                onClick={() => setIsLogin(true)}
+              >
+                SignIn</p>
+            </>}
           </div>
         </form>
       </div>
