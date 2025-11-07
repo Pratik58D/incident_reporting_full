@@ -13,10 +13,10 @@ export const createMessage = async (req: AuthRequest, res: Response , next : Nex
     const client = await pool.connect();
     try {
         const { incidentId } = req.params;
-        const { text } = req.body;
-         
+        const { text } = req.body;      
         const userIdNum = req.user?.userId;
-        console.log(userIdNum)
+
+        // console.log("the user Id is :",userIdNum)
     
         if (!text && !req.file) {
             res.status(400)
@@ -24,7 +24,7 @@ export const createMessage = async (req: AuthRequest, res: Response , next : Nex
         }
         await client.query("BEGIN");
 
-        //insert into the chitchat
+        //1. insert into the chitchat
         const chatResult = await client.query(
             `INSERT INTO chitchat (user_id , incident_id)
             VALUES ($1 , $2) RETURNING id`,
@@ -32,18 +32,30 @@ export const createMessage = async (req: AuthRequest, res: Response , next : Nex
         );
         const chitchatId = chatResult.rows[0].id;
 
-        //insert text into chitchat_log(if exits)
-        let logId: number | null = null;
-        if (text) {
-            const logResult = await client.query(
-                `INSERT INTO chitchat_log(chitchat_id , text)
-                VALUES ($1 ,$2) RETURNING id`,
-                [chitchatId, text]
-            );
-            logId = logResult.rows[0].id
-        }
+        // //2. insert text into chitchat_log(if exits)
 
-        //handle file if uploaded
+        // let logId: number | null = null;
+        // if (text) {
+        //     const logResult = await client.query(
+        //         `INSERT INTO chitchat_log(chitchat_id , text)
+        //         VALUES ($1 ,$2) RETURNING id`,
+        //         [chitchatId, text]
+        //     );
+        //     logId = logResult.rows[0].id
+        // }
+
+        // 2. always insert a log row (even if text is empty)
+
+        const logResult = await client.query(
+            `INSERT INTO chitchat_log (chitchat_id, text)
+            VALUES ($1,$2) 
+            RETURNING id` ,
+            [chitchatId , text ||null]
+        )
+        
+        const logId = logResult.rows[0].id;
+
+        //3. handle file if uploaded
         let fileId: number | null = null;
         let fileName : string | null = null;
 
@@ -57,6 +69,8 @@ export const createMessage = async (req: AuthRequest, res: Response , next : Nex
             fileId = fileResult.rows[0].id;
             fileName = file.originalname;
 
+            // console.log("the logid" , logId);
+
             //link file to chictchat_log if text exist
             if (logId) {
                 await client.query(
@@ -67,6 +81,7 @@ export const createMessage = async (req: AuthRequest, res: Response , next : Nex
             }
         }
 
+        // 4.fetch the newly created message
         const messageResult = await client.query(
             `SELECT
              c.id as chitchat_id,
@@ -87,14 +102,15 @@ export const createMessage = async (req: AuthRequest, res: Response , next : Nex
         );
         await client.query("COMMIT");
 
-        //emit to socket.IO room
+    
         const payload = messageResult.rows[0];
+
+        //5. Emit to socket.IO room
 
         // console.log("📡 Emitting to room:", `incident:${incidentId}`, payload);
         req.app.get("io")?.to(`incident:${incidentId}`).emit("message:new", payload);
         
         return res.status(201).json(payload);
-
     } catch (error) {
         await client.query("ROLLBACK");
         next(error)
@@ -104,8 +120,9 @@ export const createMessage = async (req: AuthRequest, res: Response , next : Nex
     }
 }
 
-//get messages of an incident
 
+
+//get messages of an incident
 export const getMessageByIncident = async (req: Request, res: Response , next : NextFunction) => {
     try {
         const { incidentId } = req.params;
