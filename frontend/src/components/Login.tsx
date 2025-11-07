@@ -45,9 +45,7 @@ const Login = observer(() => {
         toast.error(authStore.error)
       }
     }
-
   }
-
   return (
     <section className="flex flex-col w-full h-screen items-center justify-center">
       <div
@@ -55,8 +53,8 @@ const Login = observer(() => {
       >
         <div className="text-center">
           <h1 className="text-2xl font-semibold pb-2">Welcome Back</h1>
-          <p className="text-gray-500 pb-2">Signin to report and manage incidents</p>
-          <p className="text-xl font-semibold">{isLogin ? "Login" : "Sign Up"}</p>
+          <p className="text-gray-500 pb-2">SignIn to report and manage incidents</p>
+          <p className="text-xl font-semibold">{isLogin ? "LogIn" : "SignUp"}</p>
         </div>
         <form
           onSubmit={handleSubmit}

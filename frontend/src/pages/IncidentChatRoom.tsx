@@ -11,7 +11,7 @@ import { authStore } from "@/store/authStore";
 import { incidentReportStore, type IncidentType } from "@/store/incidentReportStore";
 // import userStore from "@/store/userStore";
 import axios from "axios";
-import { ArrowLeft, Mic, Paperclip, Send } from "lucide-react"
+import { ArrowLeft, Send, Upload } from "lucide-react"
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom"
@@ -68,19 +68,19 @@ const IncidentChatRoom = observer(() => {
     useEffect(() => {
         const socket = socketServices.get();
 
-        if(!socket){
+        if (!socket) {
             console.error("socket not initialized");
             return;
         }
 
-        if(!incidentIdNum){
+        if (!incidentIdNum) {
             console.error("NO incindet ID")
             return
         }
-        console.log("joining incindet room: " , incidentIdNum)
+        console.log("joining incindet room: ", incidentIdNum)
 
         // join the incidnet room
-        socket.emit("join:incident", { incidentId:incidentIdNum });
+        socket.emit("join:incident", { incidentId: incidentIdNum });
 
         // listen for join confirmation
         socket.on('message:new', (msg: MessageType) => {
@@ -132,18 +132,17 @@ const IncidentChatRoom = observer(() => {
     }, [incident]);
 
     // handle logout
-     const handleLogout = async()=>{
+    const handleLogout = async () => {
         try {
-          await authStore.logout();
-          incidentReportStore.reset();
-          navigate("/")
-          
+            await authStore.logout();
+            incidentReportStore.reset();
+            navigate("/")
         } catch (error) {
-          console.error("logout failed" , error)
-          toast.error("Logout failed. Please try again.")
-          
+            console.error("logout failed", error)
+            toast.error("Logout failed. Please try again.")
+
         }
-      }
+    }
 
     // console.log("ajgsjagja locaiton is :", location)
     console.log("all messages are:", messages)
@@ -162,44 +161,49 @@ const IncidentChatRoom = observer(() => {
                         {/* <h1>logo</h1> */}
                         <h1 className="capitalize font-semibold text-xl">{incident?.title}</h1>
                     </div>
-                   
                 </div>
-                  <button
-                        className="button-primary"
-                         onClick={handleLogout}
-                        >
-                      Logout
-                      </button>
+                <button className="button-primary" onClick={handleLogout}>
+                    Logout
+                </button>
             </header>
 
             {/* main chat section */}
             <main className="flex flex-1 overflow-hidden">
                 {/* chat area  */}
                 <div className="flex flex-col flex-1 border-r border-gray-200">
+                    <section className="py-5">
+                        <h1 className="text-center text-2xl font-semibold">Tell us about the incident...</h1>
+
+                    </section>
                     {/* messages chat field this has to be fixed at button */}
-                    <section className="bg-white flex flex-col px-4 md:px-10 py-3 ">
+                    <section className="flex flex-col px-4 md:px-10 py-3 ">
+                        
                         {incidentReportStore.previewUrl && (
                             <img
                                 src={incidentReportStore.previewUrl}
                                 alt="preview"
-                                className="max-w-32 rounded-md mb-2 ml-12"
+                                className="max-w-32 max-h-32 rounded-md mb-2 ml-12"
                             />
-                        )}
-                        <div className=" flex items-center gap-3 ">
-                            {/* file handlig */}
-                            <div className="">
-                                <input
-                                    type="file"
-                                    id="chat-file-upload"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                                <label htmlFor="chat-file-upload">
-                                    <Paperclip className="w-5 h-5" />
-                                </label>
-                            </div>
+                        )} 
 
-                            <div className="flex flex-1 items-center border border-gray-300 rounded-lg px-3 py-2 gap-2 bg-gray-50">
+                        <div className="flex items-center gap-4">
+                             <Avatar  className="border-none shadow-md bg-gray-700 text-white cursor-pointer ">
+                                    <AvatarImage src="" />
+                                    <AvatarFallback >PD</AvatarFallback>
+                                    </Avatar>
+                            <div className="flex flex-1 items-center border border-gray-300 rounded-lg px-3 py-2 gap-4 bg-white">
+                                {/* file handling */}
+                                <div className="">
+                                    <input
+                                        type="file"
+                                        id="chat-file-upload"
+                                        className="hidden"
+                                        onChange={handleFileChange}
+                                    />
+                                    <label htmlFor="chat-file-upload">
+                                        <Upload className="w-5 h-5 font-semibold" />
+                                    </label>
+                                </div>
                                 <input
                                     type="text"
                                     placeholder="Type your message..."
@@ -207,18 +211,16 @@ const IncidentChatRoom = observer(() => {
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
                                 />
-                                <button className="text-gray-500 hover:text-gray-700 transition-color">
-                                    <Mic className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <button
+                               <button
                                 className="bg-primaryCol text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-800"
                                 onClick={handleSend}
                             >
                                 <Send className="w-4 h-4" />
-                            </button>
+                            </button>                 
+                        </div>
                         </div>
                     </section>
+                    <hr className="text-gray-300 mt-4"/>
 
                     {/* messages*/}
                     <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-100 ">
@@ -275,10 +277,12 @@ const IncidentChatRoom = observer(() => {
                                                     />
                                                 )}
                                             </div>
-                                        )}
+                                        )
+                                    }
                                     )}
                                 </div>
-                            )})}
+                            )
+                        })}
                     </div>
                 </div>
 
@@ -288,11 +292,21 @@ const IncidentChatRoom = observer(() => {
                         <h2 className="font-semibold mb-4 text-center">Incident Details</h2>
                         <hr className="text-gray-400" />
                         <div className="flex flex-col mt-4 gap-2">
-                            <p className="text-md font-semibold">Location: <span className="text-sm font-normal capitalize"> {location}</span></p>
-                            <p className="text-md font-semibold" >Hazard: <span className="text-sm font-normal capitalize">{incident?.hazard_name}</span></p>
-                            <p className="text-md font-semibold">Reporter: <span className="text-sm font-normal capitalize">{incident?.name}</span></p>
-                            <p className="text-md font-semibold">Time: <span className="text-sm font-normal capitalize">{incident?.created_at ? new Date(incident.created_at).toLocaleString() : ""}</span> </p>
-                            <p className="text-md font-semibold">Priority: <span className="text-sm font-normal capitalize">{incident?.priority}</span></p>
+                            <p className="text-md font-semibold">Location:
+                                <span className="text-sm font-normal capitalize"> {location}</span>
+                            </p>
+                            <p className="text-md font-semibold" >Hazard:
+                                <span className="text-sm font-normal capitalize"> {incident?.hazard_name}</span>
+                            </p>
+                            <p className="text-md font-semibold">Reporter:
+                                <span className="text-sm font-normal capitalize"> {incident?.name}</span>
+                            </p>
+                            <p className="text-md font-semibold">Time:
+                                <span className="text-sm font-normal capitalize"> {incident?.created_at ? new Date(incident.created_at).toLocaleString() : ""}</span>
+                            </p>
+                            <p className="text-md font-semibold">Priority:
+                                <span className="text-sm font-normal capitalize"> {incident?.priority}</span>
+                            </p>
                         </div>
                     </div>
                 </aside>

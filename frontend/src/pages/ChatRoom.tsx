@@ -77,9 +77,9 @@ const ChatRoom: React.FC = observer(() => {
                         <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-primaryCol text-white">
                             < MessageCircle />
                         </div>
-                        <h1 className="hidden sm:flex font-semibold text-xl text-black">Chit Chat</h1>
+                        <h1 className="font-semibold text-xl text-black">Chit Chat</h1>
                     </div>
-                    <div className="flex items-center gap-10">
+                    <div className="flex items-center gap-4 sm:gap-10 sm:px-0 px-4">
                         {/* search  */}
                         <div className="flex gap-2 items-center border p-1 rounded-lg border-gray-300">
                             <Search className="w-6 h-6 cursor-pointer" />
