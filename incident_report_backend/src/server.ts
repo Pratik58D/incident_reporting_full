@@ -57,7 +57,7 @@ app.use("/api/road-blockages", roadBlockageRoutes)
 
 // Serve static frontend build (React)
 const frontendPath = path.join(__dirname, "public")
-console.log(frontendPath)
+// console.log("the path of frontned",frontendPath)
 app.use(express.static(frontendPath));
 
 //  Catch-all for React Router (must be last)
